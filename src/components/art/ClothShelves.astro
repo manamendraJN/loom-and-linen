@@ -1,0 +1,40 @@
+---
+/** Far layer: wall shelves of folded handloom cloth, softly out of focus. viewBox 420 × 540. */
+import type { ColourId } from '../../content/site';
+type Stack = { x: number; c: ColourId; n: number; w: number };
+const shelves: { y: number; stacks: Stack[] }[] = [
+  { y: 150, stacks: [{ x: 18, c: 'indigo', n: 5, w: 112 }, { x: 146, c: 'natural', n: 4, w: 104 }, { x: 266, c: 'madder', n: 5, w: 116 }] },
+  { y: 330, stacks: [{ x: 26, c: 'turmeric', n: 4, w: 108 }, { x: 150, c: 'indigo', n: 6, w: 110 }, { x: 278, c: 'natural', n: 5, w: 104 }] },
+  { y: 510, stacks: [{ x: 14, c: 'madder', n: 4, w: 112 }, { x: 140, c: 'natural', n: 5, w: 118 }, { x: 274, c: 'indigo', n: 4, w: 110 }] },
+];
+const hi: Record<ColourId, string> = {
+  indigo: 'var(--color-indigo-400)',
+  madder: 'var(--color-madder-300)',
+  turmeric: 'var(--color-turmeric-300)',
+  natural: 'var(--color-linen-50)',
+  charcoal: 'var(--color-charcoal-500)',
+};
+---
+<svg viewBox="0 0 420 540" class="block h-auto w-full" aria-hidden="true" focusable="false">
+  {shelves.map((s) => (
+    <g>
+      <rect x="0" y={s.y + 4} width="420" height="18" fill="var(--color-charcoal-950)" opacity="0.08" />
+      {s.stacks.map((st) =>
+        Array.from({ length: st.n }, (_, k) => {
+          const h = 19;
+          const y = s.y - (k + 1) * (h + 1);
+          const dx = (k % 2 ? 3 : -2) + (k === st.n - 1 ? 2 : 0);
+          return (
+            <g>
+              <rect x={st.x + dx} y={y} width={st.w - (k % 3)} height={h} rx="7" fill={`url(#weave-${st.c})`} />
+              <rect x={st.x + dx + 4} y={y + 2} width={st.w - 14} height="3" rx="1.5" fill={hi[st.c]} opacity="0.5" />
+              <rect x={st.x + dx} y={y + h - 4} width={st.w - (k % 3)} height="4" rx="2" fill="var(--color-charcoal-950)" opacity="0.18" />
+            </g>
+          );
+        }),
+      )}
+      <rect x="0" y={s.y} width="420" height="10" rx="2" fill="var(--color-wood-500)" />
+      <rect x="0" y={s.y} width="420" height="2.5" fill="var(--color-wood-300)" opacity="0.8" />
+    </g>
+  ))}
+</svg>

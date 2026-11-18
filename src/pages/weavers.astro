@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Photo from '../components/Photo.astro';
+import Edge from '../components/Edge.astro';
+import { weaversPage as w } from '../content/site';
+---
+<BaseLayout title={w.meta.title} description={w.meta.description}>
+  <PageHead eyebrow={w.eyebrow} title={w.headline} intro={w.intro}>
+    <div class="relative" data-drift="-0.06">
+      <Photo label="A weaver at the loom in the village, morning light" alt="A weaver working at a wooden handloom in the village" ratio={4 / 5} loading="eager" />
+    </div>
+  </PageHead>
+
+  <section class="relative bg-linen-50" aria-label="The village and fair pay">
+    <Edge fill="var(--color-linen-50)" />
+    <div class="mx-auto grid max-w-[96rem] grid-cols-1 gap-12 px-gutter py-section md:grid-cols-12">
+      <div class="md:col-span-5">
+        <Photo label="The weaving village: houses, looms, the road in" alt="The weaving village" ratio={3 / 2} />
+        <h2 class="mt-8 text-3xl font-light">{w.village.title}</h2>
+        <p class="mt-4 max-w-[46ch] text-lg text-linen-700">{w.village.body}</p>
+      </div>
+      <div class="md:col-span-6 md:col-start-7 md:pt-32">
+        <div class="pay">
+          <p class="tag text-madder-700">Fair pay</p>
+          <h2 class="mt-3 text-3xl font-light">{w.fairPay.title}</h2>
+          <p class="mt-4 text-lg">{w.fairPay.body}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process" class="on-dark relative bg-charcoal-900 text-linen-100" aria-labelledby="process-title">
+    <Edge fill="var(--color-charcoal-900)" />
+    <div class="proc-pin" data-hpin>
+      <header class="proc-head">
+        <p class="tag text-madder-300">Process</p>
+        <h2 id="process-title" class="mt-3 text-4xl font-light">{w.process.title}</h2>
+        <p class="mt-3 text-linen-300">{w.process.line}</p>
+      </header>
+      <div class="proc-viewport" data-hviewport>
+        <ol class="proc-track" data-htrack>
+          <li class="proc-cloth" aria-hidden="true">
+            <svg class="h-full w-full" preserveAspectRatio="none"><rect width="100%" height="100%" fill="url(#weave-indigo)" /></svg>
+          </li>
+          {w.process.steps.map((s, i) => (
+            <li class="proc-step" data-hitem>
+              <span class="tag text-turmeric-300">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="mt-2 font-display text-3xl font-light">{s.title}</h3>
+              <p class="mt-3 text-base text-linen-200">{s.body}</p>
+              <div class="mt-5"><Photo label={`Step ${i + 1}: ${s.title.toLowerCase()}`} alt={`${s.title}: ${s.body}`} ratio={3 / 2} dark /></div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative bg-linen-100" aria-labelledby="weavers-title">
+    <Edge fill="var(--color-linen-100)" />
+    <div class="mx-auto max-w-[96rem] px-gutter py-section">
+      <h2 id="weavers-title" class="text-4xl font-light">Meet the weavers</h2>
+      <p class="mt-3 max-w-[46ch] text-linen-700">[Add each weaver only with their permission, in their own words.]</p>
+      <ul class="mt-10 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-6 md:grid-cols-3">
+        {w.weavers.map((p, i) => (
+          <li class:list={['list-none', { 'md:translate-y-16': i === 1, 'col-span-2 mx-auto w-1/2 md:col-span-1 md:mx-0 md:w-full md:translate-y-6': i === 2 }]}>
+            <Photo label={p.photo} alt={`${p.name}, weaver`} ratio={4 / 5} />
+            <p class="mt-3 font-display text-xl">{p.name}</p>
+            <p class="text-sm text-linen-700">{p.line}</p>
+          </li>
+        ))}
+      </ul>
+      <div class="mt-24 flex flex-wrap items-center gap-4">
+        <a href={w.cta.href} class="btn btn-primary">{w.cta.label}</a>
+        <a href="/order" class="link-thread text-madder-700">How ordering works <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pay { padding: 2rem; background: var(--color-linen-100); border-left: 2px dashed var(--color-madder-500); }
+  .proc-pin { position: relative; padding: var(--spacing-section) 0; }
+  .proc-head { padding: 0 var(--spacing-gutter); max-width: 40rem; }
+  .proc-viewport { margin-top: 2.5rem; overflow-x: auto; scroll-padding-inline: var(--spacing-gutter); scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: var(--color-charcoal-500) transparent; }
+  .proc-track { position: relative; display: flex; gap: 1.5rem; width: max-content; padding: 1.5rem var(--spacing-gutter) 2rem; }
+  .proc-cloth { position: absolute; left: 0; right: 0; top: 0; height: 0.75rem; list-style: none; opacity: 0.9; }
+  .proc-step {
+    list-style: none;
+    flex: none;
+    width: min(80vw, 21rem);
+    padding-top: 1.25rem;
+    border-top: 1.5px dashed var(--color-madder-500);
+    scroll-snap-align: start;
+  }
+  @media (min-width: 768px) {
+    :global(.motion-ok) .proc-pin { height: 100svh; padding: 0; display: grid; grid-template-columns: minmax(16rem, 30vw) 1fr; align-items: center; overflow: hidden; }
+    :global(.motion-ok) .proc-head { position: relative; z-index: 2; align-self: stretch; display: flex; flex-direction: column; justify-content: center; background: var(--color-charcoal-900); }
+    :global(.motion-ok) .proc-viewport { min-width: 0; overflow: visible; margin: 0; scroll-snap-type: none; }
+    :global(.motion-ok) .proc-head h2 { font-size: var(--text-3xl); }
+    :global(.motion-ok) .proc-step { width: clamp(16rem, 24vw, 21rem); }
+  }
+</style>

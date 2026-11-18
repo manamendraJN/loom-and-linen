@@ -1,0 +1,39 @@
+---
+/** The one thread: a madder thread down the left edge that grows as you scroll. */
+---
+<div class="thread-progress" aria-hidden="true" transition:persist="thread-progress">
+  <span class="tp-line" data-progress-line></span>
+  <span class="tp-needle" data-progress-needle>
+    <svg width="8" height="26" viewBox="0 0 8 26"><path d="M4,0 L6,7 L5.4,24 C5.3,25.4 2.7,25.4 2.6,24 L2,7 Z" fill="var(--color-steel-400)" /><ellipse cx="4" cy="19" rx="0.9" ry="2.6" fill="var(--color-charcoal-900)" /></svg>
+  </span>
+</div>
+
+<style>
+  .thread-progress {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: max(5px, calc(var(--spacing-gutter) * 0.42));
+    width: 8px;
+    z-index: 45;
+    pointer-events: none;
+  }
+  .tp-line {
+    position: absolute;
+    left: 3px;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--color-madder-500);
+    border-radius: 1px;
+    transform-origin: 50% 0;
+    transform: scaleY(0);
+  }
+  .tp-needle {
+    position: absolute;
+    left: 0;
+    top: -6px;
+    transform: translateY(0);
+  }
+  .tp-needle svg { transform: rotate(180deg); }
+</style>

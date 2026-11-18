@@ -1,0 +1,32 @@
+---
+/** Foreground: a wooden spool of madder thread, lying on its side. viewBox 320 × 220. */
+const wraps = Array.from({ length: 64 }, (_, i) => -60 + i * 6);
+---
+<svg viewBox="0 0 320 220" class="block h-auto w-full overflow-visible" aria-hidden="true" focusable="false">
+  <defs>
+    <clipPath id="spool-core"><rect x="70" y="58" width="180" height="104" rx="6" /></clipPath>
+    <linearGradient id="spool-shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--color-sun)" stop-opacity="0.35" />
+      <stop offset="0.4" stop-color="var(--color-sun)" stop-opacity="0" />
+      <stop offset="1" stop-color="var(--color-charcoal-950)" stop-opacity="0.45" />
+    </linearGradient>
+    <linearGradient id="flange" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--color-wood-900)" />
+      <stop offset="0.5" stop-color="var(--color-wood-300)" />
+      <stop offset="1" stop-color="var(--color-wood-500)" />
+    </linearGradient>
+  </defs>
+  <ellipse cx="160" cy="206" rx="150" ry="12" fill="var(--color-charcoal-950)" opacity="0.18" />
+  <g clip-path="url(#spool-core)">
+    <rect x="70" y="58" width="180" height="104" fill="var(--color-madder-600)" />
+    <g data-spool-wraps>
+      {wraps.map((x) => <path d={`M${x},50 C${x + 10},90 ${x + 12},130 ${x + 22},170`} stroke="var(--color-madder-800)" stroke-width="1.6" fill="none" opacity="0.55" />)}
+      {wraps.map((x) => <path d={`M${x + 3},50 C${x + 13},90 ${x + 15},130 ${x + 25},170`} stroke="var(--color-madder-300)" stroke-width="0.8" fill="none" opacity="0.4" />)}
+    </g>
+    <rect x="70" y="58" width="180" height="104" fill="url(#spool-shade)" />
+  </g>
+  <ellipse cx="62" cy="110" rx="24" ry="78" fill="url(#flange)" />
+  <ellipse cx="258" cy="110" rx="24" ry="78" fill="url(#flange)" />
+  <ellipse cx="266" cy="110" rx="17" ry="66" fill="var(--color-wood-300)" />
+  <ellipse cx="268" cy="110" rx="5" ry="16" fill="var(--color-wood-900)" />
+</svg>

@@ -1,0 +1,105 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import { Font } from 'astro:assets';
+import { business } from '../content/site';
+import WeaveDefs from '../components/WeaveDefs.astro';
+import ThreadProgress from '../components/ThreadProgress.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ChatHelper from '../components/ChatHelper.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+}
+const { title, description, image = '/og.png' } = Astro.props;
+const site = Astro.site ?? new URL(business.siteUrl);
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL(image, site).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#f0e9dd" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={business.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <Font cssVariable="--font-fraunces" preload />
+    <Font cssVariable="--font-instrument" preload />
+    <Font cssVariable="--font-plex-mono" />
+    <script is:inline>
+      // Decide before first paint whether the scroll scenes run (no layout jump).
+      (function () {
+        var d = document.documentElement;
+        var apply = function () {
+          d.classList.toggle('motion-ok', !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        };
+        apply();
+        if (!window.__llMotion) {
+          window.__llMotion = true;
+          document.addEventListener('astro:after-swap', apply);
+        }
+      })();
+    </script>
+    <ClientRouter />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <WeaveDefs />
+    <ThreadProgress />
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <ChatHelper />
+    <div class="grain" aria-hidden="true"></div>
+    <script>
+      import '../scripts/app';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .skip-link {
+    position: fixed;
+    left: var(--spacing-gutter);
+    top: 0.75rem;
+    z-index: 80;
+    padding: 0.7rem 1rem;
+    background: var(--color-charcoal-900);
+    color: var(--color-linen-50);
+    border-radius: var(--radius-xs);
+    transform: translateY(-200%);
+  }
+  .skip-link:focus { transform: none; }
+  main:focus { outline: none; }
+  .scene-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    background: var(--color-charcoal-950);
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>

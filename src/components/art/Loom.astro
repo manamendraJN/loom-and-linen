@@ -1,0 +1,120 @@
+---
+/**
+ * A wooden floor handloom, seen from the weaver's seat.
+ * viewBox 600 × 760. The woven area is x 150–450, y 420–600: 30 rows of
+ * weft (6 units each) over 50 warp threads (6 units apart).
+ * Every moving part has a data attribute for scripts/hero.ts.
+ */
+import type { ColourId } from '../../content/site';
+
+interface Props { stripes: ColourId[] }
+const { stripes } = Astro.props;
+
+const warpX = Array.from({ length: 50 }, (_, j) => 153 + j * 6);
+const topX = (x: number) => 300 + (x - 300) * 0.8;
+const rows = stripes.map((c, i) => ({ c, y: 600 - (i + 1) * 6, p: i % 2 ? 'b' : 'a' }));
+const dents = Array.from({ length: 101 }, (_, i) => 150 + i * 3);
+const heddles = Array.from({ length: 51 }, (_, i) => 150 + i * 6);
+---
+<svg viewBox="0 0 600 760" class="block h-full w-full overflow-visible" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="wood-v" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--color-wood-700)" />
+      <stop offset="0.35" stop-color="var(--color-wood-300)" />
+      <stop offset="0.7" stop-color="var(--color-wood-500)" />
+      <stop offset="1" stop-color="var(--color-wood-900)" />
+    </linearGradient>
+    <linearGradient id="wood-h" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--color-wood-300)" />
+      <stop offset="0.45" stop-color="var(--color-wood-500)" />
+      <stop offset="1" stop-color="var(--color-wood-900)" />
+    </linearGradient>
+    <linearGradient id="roll-shade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--color-charcoal-950)" stop-opacity="0.35" />
+      <stop offset="0.35" stop-color="var(--color-sun)" stop-opacity="0.25" />
+      <stop offset="1" stop-color="var(--color-charcoal-950)" stop-opacity="0.45" />
+    </linearGradient>
+    <linearGradient id="warp-line" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--color-linen-400)" />
+      <stop offset="0.6" stop-color="var(--color-linen-50)" />
+      <stop offset="1" stop-color="var(--color-linen-200)" />
+    </linearGradient>
+    <filter id="soft-shadow" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="10" /></filter>
+    <clipPath id="beater-clip"><rect x="0" y="58" width="600" height="702" /></clipPath>
+    <clipPath id="cloth-clip"><rect x="150" y="414" width="300" height="186" /></clipPath>
+  </defs>
+
+  <!-- floor shadow -->
+  <ellipse cx="300" cy="752" rx="290" ry="16" fill="var(--color-charcoal-950)" opacity="0.2" filter="url(#soft-shadow)" />
+
+  <!-- back (warp) beam -->
+  <rect x="104" y="84" width="392" height="20" rx="10" fill="url(#wood-h)" />
+
+  <!-- warp threads: stretched tight by the scroll -->
+  <g data-warps>
+    {warpX.map((x) => (
+      <line x1={topX(x)} y1="100" x2={x} y2="602" stroke="url(#warp-line)" stroke-width="1.5" data-warp />
+    ))}
+  </g>
+
+  <!-- heddle shaft -->
+  <g data-heddles opacity="0.95">
+    <line x1="176" y1="58" x2="176" y2="176" stroke="var(--color-linen-600)" stroke-width="1.4" />
+    <line x1="424" y1="58" x2="424" y2="176" stroke="var(--color-linen-600)" stroke-width="1.4" />
+    <rect x="128" y="174" width="344" height="7" rx="3" fill="url(#wood-h)" />
+    <rect x="128" y="262" width="344" height="7" rx="3" fill="url(#wood-h)" />
+    <g stroke="var(--color-steel-500)" stroke-width="0.7" opacity="0.75">
+      {heddles.map((x) => <line x1={topX(x) + (x - topX(x)) * 0.33} y1="181" x2={topX(x) + (x - topX(x)) * 0.36} y2="262" />)}
+    </g>
+  </g>
+
+  <!-- woven cloth: rows slide in with the shuttle -->
+  <g clip-path="url(#cloth-clip)" data-rows>
+    {rows.map((r) => <rect x="150" y={r.y} width="300" height="6" fill={`url(#row-${r.c}-${r.p})`} data-row />)}
+  </g>
+
+  <!-- beater with reed: beats each row into place -->
+  <g clip-path="url(#beater-clip)">
+  <g data-beater transform="translate(0 422)">
+    <rect x="94" y="-560" width="12" height="552" rx="4" fill="url(#wood-v)" />
+    <rect x="494" y="-560" width="12" height="552" rx="4" fill="url(#wood-v)" />
+    <rect x="112" y="-58" width="376" height="5" rx="2" fill="var(--color-wood-700)" />
+    <g stroke="var(--color-steel-400)" stroke-width="0.55" opacity="0.8">
+      {dents.map((x) => <line x1={x} y1="-53" x2={x} y2="-12" />)}
+    </g>
+    <rect x="92" y="-14" width="416" height="15" rx="4" fill="url(#wood-h)" />
+  </g>
+  </g>
+
+  <!-- shuttle carrying the thread -->
+  <g data-shuttle transform="translate(96 410)">
+    <path d="M-36,0 C-27,-8 27,-8 36,0 C27,8 -27,8 -36,0 Z" fill="var(--color-wood-300)" />
+    <path d="M-36,0 C-27,8 27,8 36,0" fill="none" stroke="var(--color-wood-900)" stroke-width="1.2" opacity="0.6" />
+    <rect x="-14" y="-3.2" width="28" height="6.4" rx="3" fill="var(--color-wood-900)" />
+    <rect x="-11" y="-2" width="22" height="4" rx="2" fill="var(--color-madder-500)" />
+  </g>
+
+  <!-- castle (top beam) -->
+  <rect x="22" y="22" width="556" height="38" rx="5" fill="url(#wood-h)" />
+  <path d="M30,30 C180,26 420,34 570,29" stroke="var(--color-wood-900)" stroke-width="1" opacity="0.25" fill="none" />
+
+  <!-- breast beam with the cloth passing over it, and the cloth roll -->
+  <rect x="140" y="626" width="320" height="34" fill="url(#weave-natural)" />
+  <rect x="140" y="626" width="320" height="34" fill="url(#roll-shade)" />
+  <rect x="104" y="598" width="392" height="32" rx="13" fill="url(#wood-h)" />
+  <rect x="150" y="598" width="300" height="30" rx="2" fill="url(#weave-natural)" />
+  <rect x="150" y="598" width="300" height="30" rx="2" fill="url(#roll-shade)" />
+  <rect x="126" y="656" width="348" height="46" rx="23" fill="url(#weave-natural)" />
+  <rect x="126" y="656" width="348" height="46" rx="23" fill="url(#roll-shade)" />
+
+  <!-- treadles -->
+  <rect x="196" y="726" width="208" height="9" rx="3" fill="var(--color-wood-700)" />
+  <rect x="214" y="742" width="172" height="9" rx="3" fill="var(--color-wood-900)" />
+
+  <!-- uprights -->
+  <rect x="44" y="26" width="32" height="734" rx="4" fill="url(#wood-v)" />
+  <rect x="524" y="26" width="32" height="734" rx="4" fill="url(#wood-v)" />
+  <path d="M54,80 C58,240 52,420 57,740 M535,90 C531,300 538,520 533,740" stroke="var(--color-wood-900)" stroke-width="0.8" opacity="0.3" fill="none" />
+  <circle cx="60" cy="41" r="5" fill="var(--color-wood-900)" opacity="0.6" />
+  <circle cx="540" cy="41" r="5" fill="var(--color-wood-900)" opacity="0.6" />
+</svg>

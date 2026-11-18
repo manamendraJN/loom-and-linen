@@ -1,0 +1,11 @@
+{
+  "name": "Loom & Linen",
+  "short_name": "Loom & Linen",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#f0e9dd",
+  "background_color": "#f0e9dd",
+  "display": "standalone"
+}

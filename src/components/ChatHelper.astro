@@ -1,0 +1,100 @@
+---
+/**
+ * Scripted chat helper: no AI, no server. Quick answers and simple keyword
+ * matching from src/content/site.ts; anything else goes to WhatsApp or the
+ * contact form. Persists across page changes (scripts/chat.ts).
+ */
+import { chat, contact, whatsappLink } from '../content/site';
+
+const data = {
+  answers: chat.answers,
+  greeting: chat.greeting,
+  fallback: chat.fallback,
+  handoffWhatsapp: chat.handoffWhatsapp,
+  handoffForm: chat.handoffForm,
+  whatsapp: whatsappLink(contact.whatsappGreeting),
+};
+---
+<div class="chat" data-chat transition:persist="chat-helper">
+  <button type="button" class="chat-toggle" aria-expanded="false" aria-controls="chat-panel" data-chat-toggle>
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4h13c.8 0 1.5.7 1.5 1.5v9c0 .8-.7 1.5-1.5 1.5H10l-4.5 4v-4h0c-.8 0-1.5-.7-1.5-1.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><path d="M8 9.5h8M8 12.5h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="2 2" /></svg>
+    <span class="chat-toggle-label">{chat.title}</span>
+  </button>
+
+  <section id="chat-panel" class="chat-panel" role="dialog" aria-label="Quick help" data-chat-panel hidden>
+    <header class="flex items-center justify-between gap-3 border-b border-dashed border-linen-400 px-4 py-2">
+      <p class="font-display text-lg">{chat.title}</p>
+      <div class="flex items-center gap-1">
+        <button type="button" class="chat-small" data-chat-reset>{chat.reset}</button>
+        <button type="button" class="chat-small" data-chat-close aria-label="Close help">✕</button>
+      </div>
+    </header>
+    <div class="chat-log" role="log" aria-live="polite" data-chat-log data-lenis-prevent></div>
+    <div class="chat-quick" data-chat-quick data-lenis-prevent>
+      {chat.answers.map((a) => <button type="button" class="chat-q" data-q={a.id}>{a.label}</button>)}
+    </div>
+    <form class="flex gap-2 border-t border-dashed border-linen-400 p-3" data-chat-form>
+      <label for="chat-input" class="sr-only">{chat.placeholder}</label>
+      <input id="chat-input" class="field flex-1" type="text" autocomplete="off" placeholder={chat.placeholder} data-chat-input />
+      <button type="submit" class="btn btn-indigo px-4">Send</button>
+    </form>
+  </section>
+  <script type="application/json" data-chat-data set:html={JSON.stringify(data)} />
+</div>
+
+<style>
+  .chat { position: fixed; right: var(--spacing-gutter); bottom: max(1rem, env(safe-area-inset-bottom)); z-index: 55; }
+  .chat-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.1rem 0 0.95rem;
+    border-radius: var(--radius-full);
+    background: var(--color-indigo-800);
+    color: var(--color-linen-50);
+    font-weight: 600;
+    box-shadow: var(--shadow-lift);
+    transition: transform 0.3s var(--ease-settle);
+  }
+  .chat-toggle:hover { transform: translateY(-2px); }
+  .chat-toggle[aria-expanded='true'] { opacity: 0; pointer-events: none; }
+  @media (max-width: 480px) { .chat-toggle-label { display: none; } .chat-toggle { padding: 0 0.9rem; } }
+  .chat-panel {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: min(23rem, calc(100vw - 2 * var(--spacing-gutter)));
+    max-height: min(36rem, calc(100svh - var(--spacing-header) - 2rem));
+    display: flex;
+    flex-direction: column;
+    background: var(--color-linen-50);
+    color: var(--color-charcoal-900);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lift), 0 0 0 1px rgb(32 30 27 / 0.08);
+    overflow: hidden;
+    transform-origin: 100% 100%;
+    animation: chat-in 0.35s var(--ease-settle);
+  }
+  .chat-panel[hidden] { display: none; }
+  @keyframes chat-in { from { opacity: 0; transform: translateY(10px) scale(0.97); } }
+  .chat-log { flex: 1; min-height: 8rem; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.6rem; overscroll-behavior: contain; }
+  .chat-quick { display: flex; gap: 0.4rem; overflow-x: auto; padding: 0.25rem 0.75rem 0.6rem; overscroll-behavior: contain; scrollbar-width: none; }
+  .chat-q {
+    flex: none;
+    min-height: var(--spacing-tap);
+    padding: 0 0.85rem;
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px var(--color-indigo-600);
+    color: var(--color-indigo-800);
+  }
+  .chat-q:hover { background: var(--color-indigo-800); color: var(--color-linen-50); }
+  .chat-small { min-height: var(--spacing-tap); min-width: var(--spacing-tap); padding: 0 0.5rem; font-size: var(--text-sm); color: var(--color-linen-700); }
+  .chat :global(.msg) { max-width: 88%; padding: 0.6rem 0.85rem; border-radius: var(--radius-md); font-size: var(--text-sm); line-height: 1.5; }
+  .chat :global(.msg-bot) { align-self: flex-start; background: var(--color-linen-200); }
+  .chat :global(.msg-user) { align-self: flex-end; background: var(--color-indigo-800); color: var(--color-linen-50); }
+  .chat :global(.msg a) { display: inline-flex; align-items: center; min-height: var(--spacing-tap); font-weight: 600; color: var(--color-madder-700); text-decoration: underline; text-underline-offset: 3px; }
+  .chat :global(.msg-actions) { display: flex; flex-wrap: wrap; gap: 0 1rem; }
+</style>

@@ -1,0 +1,182 @@
+---
+/**
+ * A refined "tech flat" sketch of a garment, filled with real plain-weave
+ * texture. Each colour is its own dye layer; tapping a swatch (see
+ * scripts/garment.ts) lifts the new dye up from the hem, like dipping the
+ * piece in the vat. This is an illustration of the cut, not a product photo.
+ */
+import type { ColourId, Sketch } from '../content/site';
+
+interface Props {
+  sketch: Sketch;
+  colours: ColourId[];
+  active?: ColourId;
+  hanger?: boolean;
+  class?: string;
+  label: string;
+  /** Fill with woven stripe rows (bottom → top) instead of a single dye. */
+  stripes?: ColourId[];
+}
+const { sketch, colours, active = colours[0], hanger = true, class: cls = '', label, stripes } = Astro.props;
+const stripeRows = stripes ? Array.from({ length: 66 }, (_, i) => ({ c: stripes[i % stripes.length], y: 330 - (i + 1) * 6, p: i % 2 ? 'b' : 'a' })) : [];
+const uid = `g${Math.random().toString(36).slice(2, 8)}`;
+const ordered = [...colours.filter((c) => c !== active), active];
+
+const shirt =
+  'M126,30 C134,40 166,40 174,30 L224,46 C236,62 252,92 264,118 L232,136 C224,124 216,114 210,108 C209,170 209,250 210,312 C192,322 170,328 150,329 C130,328 108,322 90,312 C91,250 91,170 90,108 C84,114 76,124 68,136 L36,118 C48,92 64,62 76,46 Z';
+const outlines: Record<Sketch, string> = {
+  shirt,
+  measure: shirt,
+  dress:
+    'M122,28 C130,50 170,50 178,28 L210,36 C218,52 226,72 236,92 L214,104 C212,130 214,152 218,170 C226,220 234,270 242,320 C200,332 100,332 58,320 C66,270 74,220 82,170 C86,152 88,130 86,104 L64,92 C74,72 82,52 90,36 Z',
+  overshirt:
+    'M126,30 C134,38 166,38 174,30 L226,44 C238,58 246,80 252,104 L272,246 L240,254 L216,142 L214,316 L86,316 L84,142 L60,254 L28,246 L48,104 C54,80 62,58 74,44 Z',
+  trousers:
+    'M86,22 L214,22 L218,40 C224,120 232,220 236,326 L174,326 C168,240 160,160 152,98 L148,98 C140,160 132,240 126,326 L64,326 C68,220 76,120 82,40 Z',
+  sarong: 'M58,30 L242,30 L242,300 L58,300 Z',
+  wrap: 'M74,28 L226,28 C232,120 240,210 246,300 L54,300 C60,210 68,120 74,28 Z',
+  giftcard: 'M100,40 L200,40 L222,62 L222,300 L78,300 L78,62 Z',
+};
+const outline = outlines[sketch];
+
+const details: Record<Sketch, string[]> = {
+  shirt: [
+    'M126,30 L139,64 L150,46 L161,64 L174,30',
+    'M90,108 C94,90 88,64 78,50',
+    'M210,108 C206,90 212,64 222,50',
+    'M100,100 L128,100 L128,132 L114,137 L100,132 Z',
+  ],
+  measure: ['M126,30 L139,64 L150,46 L161,64 L174,30', 'M90,108 C94,90 88,64 78,50', 'M210,108 C206,90 212,64 222,50'],
+  dress: ['M84,190 C90,200 92,214 90,228', 'M216,190 C210,200 208,214 210,228'],
+  overshirt: [
+    'M126,30 L138,60 L150,44 L162,60 L174,30',
+    'M84,142 C82,100 80,70 74,46',
+    'M216,142 C218,100 220,70 226,46',
+    'M98,92 h40 v46 h-40 Z',
+    'M162,92 h40 v46 h-40 Z',
+    'M98,92 h40 v12 h-40 Z',
+    'M162,92 h40 v12 h-40 Z',
+  ],
+  trousers: ['M84,40 L216,40', 'M92,42 C100,62 104,72 106,86', 'M208,42 C200,62 196,72 194,86'],
+  sarong: [],
+  wrap: ['M74,28 C118,96 150,170 172,300'],
+  giftcard: [],
+};
+const stitches: Record<Sketch, string[]> = {
+  shirt: ['M144,50 L144,326', 'M78,56 C120,68 180,68 222,56', 'M42,112 L70,129', 'M258,112 L230,129', 'M92,304 C110,314 130,320 150,321 C170,320 190,314 208,304'],
+  measure: ['M144,50 L144,326', 'M92,304 C110,314 130,320 150,321 C170,320 190,314 208,304'],
+  dress: ['M126,32 C134,58 166,58 174,32', 'M64,312 C110,322 190,322 236,312', 'M68,84 L90,96', 'M232,84 L210,96'],
+  overshirt: ['M144,48 L144,314', 'M88,306 L212,306', 'M32,236 L62,244', 'M268,236 L238,244'],
+  trousers: ['M150,40 L150,96 C156,92 160,84 160,42', 'M68,316 L126,316', 'M174,316 L232,316'],
+  sarong: ['M58,40 L242,40', 'M58,292 L242,292'],
+  wrap: ['M60,292 L240,292'],
+  giftcard: ['M88,72 L88,290 L212,290 L212,72'],
+};
+const buttons: Record<Sketch, number[]> = {
+  shirt: [84, 124, 164, 204, 244, 284],
+  measure: [84, 124, 164, 204, 244, 284],
+  overshirt: [72, 120, 168, 216, 264],
+  dress: [],
+  trousers: [],
+  sarong: [],
+  wrap: [],
+  giftcard: [],
+};
+const hasFringe = sketch === 'sarong' || sketch === 'wrap';
+const fringe = hasFringe ? Array.from({ length: 31 }, (_, i) => (sketch === 'sarong' ? 60 + i * 6 : 56 + i * 6.3)) : [];
+const bandFor = (c: ColourId) => (c === 'natural' ? 'indigo' : 'natural');
+const hangerKind = !hanger || sketch === 'giftcard' ? 'none' : sketch === 'trousers' ? 'clip' : hasFringe ? 'bar' : 'shoulder';
+---
+<div class:list={['garment relative', cls]} data-garment data-active={active}>
+  <svg viewBox="0 -54 300 394" role="img" aria-label={label} class="block h-auto w-full overflow-visible">
+    <defs>
+      <clipPath id={`${uid}-clip`}><path d={outline} /></clipPath>
+    </defs>
+
+    {hangerKind === 'shoulder' && (
+      <g aria-hidden="true">
+        <path d="M150,-12 L150,-26 C150,-34 158,-40 165,-36 C171,-33 170,-26 165,-24" fill="none" stroke="var(--color-steel-700)" stroke-width="2.2" stroke-linecap="round" />
+        <path d="M66,34 C100,6 126,-8 150,-12 C174,-8 200,6 234,34 L229,40 C198,16 174,0 150,-3 C126,0 102,16 71,40 Z" fill="var(--color-wood-500)" />
+        <path d="M70,36 C102,10 126,-4 150,-7 C174,-4 198,10 230,36" fill="none" stroke="var(--color-wood-300)" stroke-width="1" opacity="0.7" />
+      </g>
+    )}
+    {hangerKind === 'clip' && (
+      <g aria-hidden="true">
+        <path d="M150,-14 L150,-28 C150,-36 158,-42 165,-38 C171,-35 170,-28 165,-26" fill="none" stroke="var(--color-steel-700)" stroke-width="2.2" stroke-linecap="round" />
+        <rect x="70" y="-14" width="160" height="7" rx="3.5" fill="var(--color-wood-500)" />
+        <rect x="88" y="-8" width="12" height="38" rx="2" fill="var(--color-steel-500)" />
+        <rect x="200" y="-8" width="12" height="38" rx="2" fill="var(--color-steel-500)" />
+      </g>
+    )}
+    {hangerKind === 'bar' && (
+      <g aria-hidden="true">
+        <path d="M150,8 L150,-8 C150,-16 158,-22 165,-18 C171,-15 170,-8 165,-6" fill="none" stroke="var(--color-steel-700)" stroke-width="2.2" stroke-linecap="round" />
+        <rect x="36" y="20" width="228" height="10" rx="5" fill="var(--color-wood-500)" />
+        <path d="M150,8 L60,22 M150,8 L240,22" stroke="var(--color-steel-700)" stroke-width="1.6" fill="none" />
+      </g>
+    )}
+
+    {/* Fringe (natural warp ends) */}
+    {hasFringe && (
+      <g aria-hidden="true" stroke="var(--color-linen-400)" stroke-width="1.6" stroke-linecap="round">
+        {fringe.map((x, i) => <path d={`M${x},298 C${x + 1},${308 + (i % 3)} ${x - 1},${314} ${x + (i % 2 ? 1.5 : -1.5)},${322 + (i % 4)}`} fill="none" />)}
+      </g>
+    )}
+
+    {/* Dye layers: the active colour is last (on top) */}
+    <g clip-path={`url(#${uid}-clip)`}>
+      {stripes && stripeRows.map((r) => <rect x="0" y={r.y} width="300" height="6" fill={`url(#row-${r.c}-${r.p})`} />)}
+      {!stripes && ordered.map((c) => (
+        <g class="dye" data-dye={c}>
+          <g class="dye-rise">
+            <path d="M-10,-50 C40,-62 90,-38 150,-50 S250,-62 310,-50 L310,360 L-10,360 Z" fill={`url(#weave-${c})`} />
+            {sketch === 'sarong' && (
+              <g>
+                <rect x="0" y="222" width="300" height="5" fill={`url(#weave-${bandFor(c)})`} />
+                <rect x="0" y="232" width="300" height="22" fill={`url(#weave-${bandFor(c)})`} />
+                <rect x="0" y="259" width="300" height="4" fill="url(#weave-madder)" />
+                <rect x="0" y="268" width="300" height="5" fill={`url(#weave-${bandFor(c)})`} />
+              </g>
+            )}
+            {sketch === 'wrap' && <rect x="0" y="262" width="300" height="8" fill={`url(#weave-${bandFor(c)})`} />}
+          </g>
+        </g>
+      ))}
+      <rect x="0" y="0" width="300" height="340" fill="url(#garment-shade)" />
+      <rect x="0" y="0" width="300" height="340" fill="url(#garment-light)" />
+      {sketch === 'sarong' && <path d="M58,120 L242,120 M58,210 L242,210" stroke="var(--color-charcoal-950)" stroke-opacity="0.12" stroke-width="6" />}
+    </g>
+
+    {/* Construction lines */}
+    <g aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d={outline} stroke="var(--color-charcoal-950)" stroke-opacity="0.32" stroke-width="1" />
+      {details[sketch].map((d) => <path d={d} stroke="var(--color-charcoal-950)" stroke-opacity="0.34" stroke-width="1.1" />)}
+      {stitches[sketch].map((d) => <path d={d} stroke="var(--color-charcoal-950)" stroke-opacity="0.3" stroke-width="0.9" stroke-dasharray="2.6 2.6" />)}
+      {buttons[sketch].map((y) => <circle cx="147" cy={y} r="2.6" fill="var(--color-linen-100)" stroke="var(--color-charcoal-950)" stroke-opacity="0.35" stroke-width="0.8" />)}
+    </g>
+
+    {sketch === 'measure' && (
+      <g aria-hidden="true">
+        <g transform="rotate(-4 150 128)">
+          <rect x="70" y="120" width="160" height="13" rx="1" fill="var(--color-turmeric-300)" />
+          {Array.from({ length: 27 }, (_, i) => <path d={`M${74 + i * 6},120 v${i % 5 === 0 ? 7 : 4}`} stroke="var(--color-charcoal-800)" stroke-width="0.8" />)}
+        </g>
+        <path d="M232,52 C246,120 250,220 240,318" fill="none" stroke="var(--color-madder-500)" stroke-width="1.4" stroke-dasharray="4 4" />
+      </g>
+    )}
+    {sketch === 'giftcard' && (
+      <g aria-hidden="true">
+        <circle cx="150" cy="72" r="7" fill="var(--color-linen-100)" stroke="var(--color-charcoal-950)" stroke-opacity="0.3" />
+        <path d="M150,72 C140,40 120,10 96,-30 M150,72 C164,36 186,8 214,-26" fill="none" stroke="var(--color-madder-500)" stroke-width="2" stroke-linecap="round" />
+        <g transform="translate(132 130) scale(1.5)" fill="var(--color-charcoal-800)">
+          <rect x="2.5" y="4.4" width="8.6" height="5.4" rx="0.6" />
+          <rect x="14.2" y="2.5" width="5.4" height="8.6" rx="0.6" />
+          <rect x="4.4" y="12.9" width="5.4" height="8.6" rx="0.6" />
+          <rect x="12.9" y="14.2" width="8.6" height="5.4" rx="0.6" fill="var(--color-madder-600)" />
+        </g>
+        <text x="150" y="214" text-anchor="middle" font-family="var(--font-display)" font-size="26" fill="var(--color-charcoal-900)">Gift card</text>
+        <text x="150" y="244" text-anchor="middle" font-family="var(--font-mono)" font-size="12" letter-spacing="1.5" fill="var(--color-charcoal-800)">[AMOUNT]</text>
+      </g>
+    )}
+  </svg>
+</div>

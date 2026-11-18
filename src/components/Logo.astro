@@ -1,0 +1,27 @@
+---
+/**
+ * Loom & Linen mark: a basket-weave square, four woven floats, one in
+ * madder red (the one thread). Uses currentColor, so it works on light
+ * and dark backgrounds; reads clearly at 16px.
+ */
+interface Props {
+  withWordmark?: boolean;
+  class?: string;
+  size?: number;
+}
+const { withWordmark = true, class: cls = '', size = 28 } = Astro.props;
+---
+<span class:list={['inline-flex items-center gap-2.5 leading-none', cls]}>
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="shrink-0">
+    <rect x="2.5" y="4.4" width="8.6" height="5.4" rx="0.6" fill="currentColor" />
+    <rect x="14.2" y="2.5" width="5.4" height="8.6" rx="0.6" fill="currentColor" />
+    <rect x="4.4" y="12.9" width="5.4" height="8.6" rx="0.6" fill="currentColor" />
+    <rect x="12.9" y="14.2" width="8.6" height="5.4" rx="0.6" fill="var(--color-madder-500)" />
+  </svg>
+  {withWordmark && (
+    <span class="font-display text-[1.28rem] font-medium tracking-[-0.01em] whitespace-nowrap">
+      Loom <span class="font-normal italic text-madder-500">&amp;</span> Linen
+    </span>
+  )}
+  {!withWordmark && <span class="sr-only">Loom &amp; Linen</span>}
+</span>

@@ -1,0 +1,11 @@
+---
+/** Size chips for one piece. Handled by scripts/garment.ts inside a [data-piece]. */
+interface Props { sizes: string[]; label?: string; class?: string }
+const { sizes, label = 'Size', class: cls = '' } = Astro.props;
+const single = sizes.length === 1;
+---
+<div class:list={['flex flex-wrap gap-1', cls]} role="group" aria-label={label}>
+  {sizes.map((s) => (
+    <button type="button" class="chip" data-size={s} aria-pressed={single ? 'true' : 'false'}>{s}</button>
+  ))}
+</div>

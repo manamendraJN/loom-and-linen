@@ -1,0 +1,142 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GarmentSketch from '../../components/GarmentSketch.astro';
+import Photo from '../../components/Photo.astro';
+import Swatches from '../../components/shop/Swatches.astro';
+import Sizes from '../../components/shop/Sizes.astro';
+import ProductCard from '../../components/shop/ProductCard.astro';
+import SizeTable from '../../components/shop/SizeTable.astro';
+import { products, categories, colours as colourInfo, productPage as t, whatsappLink, orderMessage, type Product } from '../../content/site';
+
+export const getStaticPaths = (() => products.map((product) => ({ params: { slug: product.slug }, props: { product } }))) satisfies GetStaticPaths;
+
+const { product: p } = Astro.props as { product: Product };
+const cat = categories.find((c) => c.id === p.category);
+const others = products.filter((x) => x.slug !== p.slug);
+const related = [...others.filter((x) => x.category === p.category), ...others.filter((x) => x.category !== p.category)].slice(0, 4);
+const isGift = p.category === 'gift-cards';
+const isWearable = !isGift && p.sizes.length > 1;
+const askLink = whatsappLink(`Hello Loom & Linen! I have a question about ${p.name}.`);
+const [hero, ...rest] = p.photos;
+---
+<BaseLayout title={`${p.name} | Loom & Linen`} description={`${p.summary} ${p.cloth}, woven on a handloom in Sri Lanka. Choose a colour and size and order on WhatsApp.`}>
+  <article class="mx-auto max-w-[96rem] px-gutter pt-[calc(var(--spacing-header)+1.5rem)] pb-section" data-piece data-slug={p.slug} data-name={p.name} data-from-url>
+    <nav aria-label="Breadcrumb" class="tag mb-6 text-linen-700">
+      <a href="/shop" class="inline-flex min-h-[var(--spacing-tap)] items-center underline decoration-dashed underline-offset-4">Shop</a> <span aria-hidden="true">/</span> <a href={`/shop#${p.category}`} class="inline-flex min-h-[var(--spacing-tap)] items-center underline decoration-dashed underline-offset-4">{cat?.label}</a>
+    </nav>
+
+    <div class="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
+      <!-- Pictures -->
+      <div class="lg:col-span-7">
+        <div class="grid grid-cols-6 gap-3 sm:gap-4">
+          <figure class="sketch-panel col-span-6 sm:col-span-4 sm:row-span-2">
+            <GarmentSketch sketch={p.sketch} colours={p.colours} label={`Flat sketch of ${p.name}`} hanger={!isGift} class="mx-auto w-[min(78%,26rem)]" />
+            <figcaption class="tag absolute bottom-3 left-4 text-linen-700">{t.sketchNote}</figcaption>
+          </figure>
+          {hero && <div class="col-span-3 sm:col-span-2"><Photo label={hero.label} alt={hero.alt} ratio={hero.ratio} src={hero.src} loading="eager" sizes="(min-width:1024px) 20vw, 50vw" /></div>}
+          {rest.map((ph) => <div class="col-span-3 sm:col-span-2"><Photo label={ph.label} alt={ph.alt} ratio={ph.ratio} src={ph.src} sizes="(min-width:1024px) 20vw, 50vw" /></div>)}
+        </div>
+      </div>
+
+      <!-- Order panel -->
+      <div class="lg:col-span-5">
+        <div class="lg:sticky lg:top-[calc(var(--spacing-header)+1rem)]">
+          <p class="tag text-madder-700">{cat?.label}{p.cloth !== cat?.label && ` · ${p.cloth}`}</p>
+          <h1 class="mt-3 text-4xl font-light">{p.name}</h1>
+          <p class="mt-4 text-lg text-linen-700">{p.summary}</p>
+          <p class="mt-4 font-mono text-lg">{p.price.display}</p>
+
+          <section id="order" class="order-panel mt-6" aria-labelledby="order-title">
+            <h2 id="order-title" class="sr-only">{t.orderTitle}</h2>
+            {p.colours.length > 1 && (
+              <div>
+                <p class="tag text-linen-700">{t.colourLabel}: <span class="text-charcoal-900" data-colour-name>{colourInfo[p.colours[0]].name}</span></p>
+                <Swatches colours={p.colours} class="mt-1 -ml-2" />
+              </div>
+            )}
+            <div class="mt-4">
+              <div class="flex items-center justify-between gap-4">
+                <p class="tag text-linen-700">{isGift ? 'Amount' : t.sizeLabel}: <span class="text-charcoal-900" data-size-name>not chosen yet</span></p>
+                {isWearable && p.category !== 'made-to-measure' && (
+                  <button type="button" class="link-thread text-sm text-madder-700" data-dialog-open="size-guide">{t.sizeGuide}</button>
+                )}
+              </div>
+              <Sizes sizes={p.sizes} label={isGift ? 'Amount' : 'Size'} class="mt-2" />
+            </div>
+            <a href={whatsappLink(orderMessage({ name: p.name, colour: colourInfo[p.colours[0]].name }))} class="btn btn-primary mt-6 w-full text-lg" data-wa-order target="_blank" rel="noopener">
+              <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Z"/></svg>
+              {t.orderButton}
+            </a>
+            <p class="mt-2 text-sm text-linen-700">{t.orderLine}</p>
+            <a href={askLink} class="link-thread mt-1 text-sm text-madder-700" target="_blank" rel="noopener">{t.askButton} <span aria-hidden="true">→</span></a>
+            <ul class="mt-4 space-y-1 border-t border-dashed border-linen-400 pt-4 text-sm text-linen-700">
+              <li>{t.delivery}</li>
+              <li>{t.exchanges}</li>
+            </ul>
+          </section>
+
+          <div class="mt-8 space-y-4 text-base">
+            {p.description.map((d) => <p>{d}</p>)}
+          </div>
+          <dl class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <dt class="tag text-madder-700">Details</dt>
+              <dd><ul class="mt-2 space-y-1 text-sm">{p.details.map((d) => <li>— {d}</li>)}</ul></dd>
+            </div>
+            {p.care.length > 0 && (
+              <div>
+                <dt class="tag text-madder-700">Care</dt>
+                <dd><ul class="mt-2 space-y-1 text-sm">{p.care.map((d) => <li>— {d}</li>)}</ul></dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <section class="border-t border-dashed border-linen-400 bg-linen-50" aria-labelledby="related-title">
+    <div class="mx-auto max-w-[96rem] px-gutter py-section">
+      <h2 id="related-title" class="text-3xl font-light">{t.related}</h2>
+      <div class="mt-8 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-6 md:grid-cols-4">
+        {related.map((r) => <ProductCard product={r} />)}
+      </div>
+    </div>
+  </section>
+
+  {isWearable && (
+    <dialog id="size-guide" class="size-dialog" aria-labelledby="size-guide-title">
+      <div class="flex items-center justify-between gap-4 border-b border-dashed border-linen-400 px-5 py-3">
+        <h2 id="size-guide-title" class="font-display text-2xl">{t.sizeGuide}</h2>
+        <button type="button" class="min-h-[var(--spacing-tap)] min-w-[var(--spacing-tap)]" data-dialog-close aria-label="Close size guide">✕</button>
+      </div>
+      <div class="max-h-[70svh] overflow-auto px-5 py-4" data-lenis-prevent>
+        <SizeTable />
+        <p class="mt-4 text-sm">Between sizes, or not sure? <a class="font-semibold text-madder-700 underline" href={whatsappLink(`Hello! Can you help me with the size for ${p.name}?`)} target="_blank" rel="noopener">Ask us on WhatsApp</a> or see the <a class="font-semibold text-madder-700 underline" href="/size-and-care">full size & care guide</a>.</p>
+      </div>
+    </dialog>
+  )}
+</BaseLayout>
+
+<style>
+  .sketch-panel {
+    position: relative;
+    padding: 2.5rem 1rem 3rem;
+    background: var(--color-linen-200);
+    border-radius: var(--radius-xs);
+    display: grid;
+    place-items: center;
+  }
+  .order-panel { padding: 1.25rem; background: var(--color-linen-50); border-radius: var(--radius-xs); box-shadow: var(--shadow-tag); }
+  .size-dialog {
+    width: min(40rem, calc(100vw - 2rem));
+    margin: auto;
+    padding: 0;
+    border-radius: var(--radius-md);
+    background: var(--color-linen-50);
+    color: var(--color-charcoal-900);
+    box-shadow: var(--shadow-lift);
+  }
+  .size-dialog::backdrop { background: rgb(21 20 18 / 0.55); }
+</style>

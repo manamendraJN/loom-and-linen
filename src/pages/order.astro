@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Edge from '../components/Edge.astro';
+import StepLabels from '../components/StepLabels.astro';
+import { orderPage as o, products, colours, whatsappLink, orderMessage } from '../content/site';
+
+const items = products.map((p) => ({ slug: p.slug, name: p.name, colours: p.colours, sizes: p.sizes }));
+const first = products[0];
+const firstMsg = orderMessage({ name: first.name, colour: colours[first.colours[0]].name });
+---
+<BaseLayout title={o.meta.title} description={o.meta.description}>
+  <PageHead eyebrow={o.eyebrow} title={o.headline} intro={o.intro} />
+
+  <section class="relative bg-linen-200" aria-label="The three steps">
+    <Edge fill="var(--color-linen-200)" />
+    <div class="mx-auto max-w-[80rem] px-gutter py-section">
+      <StepLabels steps={o.steps} animate />
+    </div>
+  </section>
+
+  <section id="build" class="relative bg-linen-50" aria-labelledby="build-title">
+    <Edge fill="var(--color-linen-50)" />
+    <div class="mx-auto grid max-w-[96rem] grid-cols-1 gap-12 px-gutter py-section lg:grid-cols-12">
+      <form class="lg:col-span-6" data-order-builder>
+        <h2 id="build-title" class="text-3xl font-light">{o.builder.title}</h2>
+        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label class="sm:col-span-2">
+            <span class="tag mb-1 block text-linen-700">{o.builder.piece}</span>
+            <select name="piece" class="field">
+              {items.map((i) => <option value={i.slug}>{i.name}</option>)}
+            </select>
+          </label>
+          <label>
+            <span class="tag mb-1 block text-linen-700">{o.builder.colour}</span>
+            <select name="colour" class="field">
+              {first.colours.map((c) => <option value={c}>{colours[c].name}</option>)}
+            </select>
+          </label>
+          <label>
+            <span class="tag mb-1 block text-linen-700">{o.builder.size}</span>
+            <select name="size" class="field">
+              <option value="">Not sure yet, help me choose</option>
+              {first.sizes.map((s) => <option value={s}>{s}</option>)}
+            </select>
+          </label>
+          <label class="sm:col-span-2">
+            <span class="tag mb-1 block text-linen-700">{o.builder.note}</span>
+            <textarea name="note" rows="3" class="field" placeholder={o.builder.notePlaceholder}></textarea>
+          </label>
+        </div>
+        <script type="application/json" data-ob-data set:html={JSON.stringify(items)} />
+        <button type="submit" class="sr-only">{o.builder.send}</button>
+      </form>
+
+      <div class="lg:col-span-5 lg:col-start-8">
+        <div class="ticket">
+          <p class="tag text-madder-700">{o.builder.preview}</p>
+          <pre class="mt-3 font-mono text-sm whitespace-pre-wrap" data-ob-preview aria-live="polite">{firstMsg}</pre>
+          <a href={whatsappLink(firstMsg)} class="btn btn-primary mt-6 w-full" data-ob-send target="_blank" rel="noopener">{o.builder.send}</a>
+          <p class="mt-3 text-sm text-linen-700">Opens WhatsApp with this message filled in. Nothing is paid here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="relative bg-linen-100" aria-label="Payment, delivery and exchanges">
+    <Edge fill="var(--color-linen-100)" />
+    <dl class="mx-auto grid max-w-[96rem] grid-cols-2 gap-x-4 gap-y-10 px-gutter py-section lg:grid-cols-4">
+      {o.info.map((i) => (
+        <div class="border-t-2 border-charcoal-900 pt-4">
+          <dt class="font-display text-xl">{i.title}</dt>
+          <dd class="mt-2 text-sm text-linen-700 sm:text-base">{i.body}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+</BaseLayout>
+
+<style>
+  .ticket {
+    position: relative;
+    padding: 1.5rem;
+    background: var(--color-linen-100);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-tag);
+    rotate: 1deg;
+  }
+  .ticket::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    top: 0.5rem;
+    border-top: 1.5px dashed var(--color-madder-500);
+  }
+</style>

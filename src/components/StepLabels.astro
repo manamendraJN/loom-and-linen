@@ -1,0 +1,83 @@
+---
+/**
+ * The three ordering steps as woven garment labels sewn onto a strip of
+ * linen. Horizontal strip on wide screens, vertical strip on phones.
+ */
+interface Props { steps: { title: string; line: string }[]; animate?: boolean }
+const { steps, animate = false } = Astro.props;
+const tones = ['label-indigo', 'label-madder', 'label-turmeric'];
+---
+<div class="steps" data-steps={animate ? '' : undefined}>
+  <div class="strip" aria-hidden="true">
+    <svg class="h-full w-full" preserveAspectRatio="none"><rect width="100%" height="100%" fill="url(#weave-natural)" /></svg>
+    <span class="strip-edge strip-edge-a"></span>
+    <span class="strip-edge strip-edge-b"></span>
+  </div>
+  <ol class="labels">
+    {steps.map((s, i) => (
+      <li class:list={['label', tones[i % 3]]} data-label>
+        <span class="label-stitch label-stitch-a" data-label-stitch aria-hidden="true"></span>
+        <span class="label-stitch label-stitch-b" data-label-stitch aria-hidden="true"></span>
+        <span class="tag opacity-80">Step {String(i + 1).padStart(2, '0')}</span>
+        <span class="mt-2 block font-display text-2xl leading-[1.08]">{s.title}</span>
+        <span class="mt-2 block text-base opacity-90">{s.line}</span>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .steps { position: relative; padding: 1rem 0; }
+  .strip {
+    position: absolute;
+    left: -2rem;
+    right: calc(var(--spacing-gutter) * -1);
+    top: 50%;
+    height: 42%;
+    transform: translateY(-50%);
+    box-shadow: 0 1px 0 rgb(32 30 27 / 0.08), 0 14px 22px -18px rgb(32 30 27 / 0.45);
+  }
+  .strip-edge { position: absolute; left: 0; right: 0; height: 1px; border-top: 1.5px dashed var(--color-madder-500); opacity: 0.7; }
+  .strip-edge-a { top: 8px; }
+  .strip-edge-b { bottom: 8px; }
+  .labels {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2.5vw, 2rem);
+    align-items: center;
+  }
+  .label {
+    position: relative;
+    list-style: none;
+    padding: 1.6rem 1.6rem 1.5rem;
+    border-radius: 2px;
+    box-shadow: var(--shadow-tag);
+  }
+  .label:nth-child(1) { rotate: -2.5deg; translate: 0 -1.5rem; }
+  .label:nth-child(2) { rotate: 1.5deg; translate: 0 1.8rem; }
+  .label:nth-child(3) { rotate: -1deg; translate: 0 -0.6rem; }
+  .label-indigo { background: var(--color-indigo-800); color: var(--color-linen-50); }
+  .label-madder { background: var(--color-madder-700); color: var(--color-linen-50); }
+  .label-turmeric { background: var(--color-turmeric-500); color: var(--color-charcoal-900); }
+  .label-stitch {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 0;
+    border-left: 1.5px dashed currentColor;
+    opacity: 0.55;
+    transform-origin: 50% 0;
+  }
+  .label-stitch-a { left: 0.55rem; }
+  .label-stitch-b { right: 0.55rem; }
+
+  @media (max-width: 767px) {
+    .strip { left: 1.1rem; right: auto; top: -1rem; bottom: -1rem; width: 4.4rem; height: auto; transform: none; }
+    .labels { grid-template-columns: 1fr; gap: 1.25rem; }
+    .label { margin-left: 2.2rem; }
+    .label:nth-child(1) { rotate: -1.5deg; translate: none; }
+    .label:nth-child(2) { rotate: 1.2deg; translate: none; margin-left: 3.2rem; }
+    .label:nth-child(3) { rotate: -0.8deg; translate: none; }
+  }
+</style>

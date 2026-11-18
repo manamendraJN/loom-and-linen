@@ -1,0 +1,29 @@
+---
+/** Scene 5: the ease. Three woven labels, sewn onto a strip of linen one by one. */
+import { home } from '../../content/site';
+import Edge from '../Edge.astro';
+import StepLabels from '../StepLabels.astro';
+
+const { ease } = home;
+---
+<section id="ordering" class="scene relative z-[4] bg-linen-200" data-scene aria-labelledby="ease-title">
+  <Edge fill="var(--color-linen-200)" />
+  <div class="scene-inner" data-sink-inner>
+    <div class="mx-auto grid max-w-[96rem] grid-cols-1 gap-12 px-gutter py-section lg:grid-cols-12 lg:gap-8">
+      <header class="lg:col-span-4 lg:pt-10">
+        <p class="tag text-madder-700">{ease.eyebrow}</p>
+        <h2 id="ease-title" class="mt-3 text-4xl font-light">{ease.headline}</h2>
+        <p class="mt-6 max-w-[34ch] text-base text-linen-700">{ease.exchanges}</p>
+        <ul class="mt-4 flex flex-wrap gap-x-6">
+          {ease.links.map((l) => (
+            <li><a href={l.href} class="link-thread text-madder-700">{l.label} <span aria-hidden="true">→</span></a></li>
+          ))}
+        </ul>
+      </header>
+      <div class="lg:col-span-8">
+        <StepLabels steps={ease.steps} animate />
+      </div>
+    </div>
+  </div>
+  <div class="scene-dim" data-sink-dim aria-hidden="true"></div>
+</section>

@@ -1,0 +1,13 @@
+---
+/** Colour swatches for one piece. Handled by scripts/garment.ts inside a [data-piece]. */
+import { colours as colourInfo, type ColourId } from '../../content/site';
+interface Props { colours: ColourId[]; active?: ColourId; label?: string; class?: string }
+const { colours, active = colours[0], label = 'Colour', class: cls = '' } = Astro.props;
+---
+<div class:list={['flex flex-wrap items-center gap-0.5', cls]} role="group" aria-label={label}>
+  {colours.map((c) => (
+    <button type="button" class="swatch" data-swatch={c} data-swatch-name={colourInfo[c].name} aria-pressed={c === active ? 'true' : 'false'} aria-label={colourInfo[c].name} title={colourInfo[c].name}>
+      <span class={`sw-${c}`}></span>
+    </button>
+  ))}
+</div>

@@ -1,0 +1,138 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Edge from '../components/Edge.astro';
+import SizeTable from '../components/shop/SizeTable.astro';
+import GarmentSketch from '../components/GarmentSketch.astro';
+import { sizeCare as s, contact, whatsappLink } from '../content/site';
+
+// Measuring points on the shirt sketch (sketch coordinates, 300 × 394 box from y = -54)
+const points = [
+  { key: 'chest', x: 150, y: 128 },
+  { key: 'waist', x: 150, y: 210 },
+  { key: 'hip', x: 150, y: 290 },
+  { key: 'length', x: 238, y: 200 },
+];
+const icons: Record<number, string> = {
+  0: 'M4,9 L20,9 L18,19 L6,19 Z M4,9 C7,7 9,11 12,9 C15,7 17,11 20,9',
+  1: 'M12,3 L12,6 M5,12 C5,8 8,6 12,6 C16,6 19,8 19,12 Z M12,12 L12,20',
+  2: 'M4,17 L20,17 L18,10 C17,8 14,7 11,7 L8,7 C6,7 5,9 4,12 Z M9,7 L9,4 L15,4',
+  3: 'M6,4 L18,4 L18,20 L6,20 Z M6,9 L18,9',
+  4: 'M3,12 C6,10 8,14 11,12 C13,10.5 14,13 16,12 C18,11 19,13 21,12 M11,12 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0',
+  5: 'M4,15 C8,9 16,9 20,15 M6,19 C9,15 15,15 18,19',
+};
+---
+<BaseLayout title={s.meta.title} description={s.meta.description}>
+  <PageHead eyebrow={s.eyebrow} title={s.headline} intro={s.intro}>
+    <a slot="actions" href={whatsappLink('Hello! Can you help me find my size?')} class="btn btn-primary mt-6" target="_blank" rel="noopener">Ask about my size on WhatsApp</a>
+    <svg viewBox="0 0 520 300" class="h-auto w-full overflow-visible" aria-hidden="true">
+      <defs>
+        <pattern id="tape-ticks" width="12" height="40" patternUnits="userSpaceOnUse">
+          <rect width="12" height="40" fill="var(--color-turmeric-500)" />
+          <path d="M0.5,0 V9 M6.5,0 V5" stroke="var(--color-charcoal-800)" stroke-width="1" />
+        </pattern>
+        <linearGradient id="tape-shade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--color-sun)" stop-opacity="0.35" />
+          <stop offset="1" stop-color="var(--color-charcoal-950)" stop-opacity="0.18" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="270" cy="262" rx="230" ry="14" fill="var(--color-charcoal-950)" opacity="0.12" />
+      <g transform="rotate(-9 260 150)">
+        <rect x="0" y="120" width="560" height="40" fill="url(#tape-ticks)" />
+        <rect x="0" y="120" width="560" height="40" fill="url(#tape-shade)" />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+          <text x={n * 60 + 4} y="152" font-family="var(--font-mono)" font-size="11" fill="var(--color-charcoal-800)">{n * 5}</text>
+        ))}
+      </g>
+      <rect x="388" y="170" width="96" height="70" rx="10" fill="url(#weave-indigo)" transform="rotate(-9 436 205)" />
+      <circle cx="436" cy="205" r="9" fill="var(--color-linen-200)" />
+    </svg>
+  </PageHead>
+
+  <section id="size-guide" class="relative bg-linen-50" aria-labelledby="table-title">
+    <Edge fill="var(--color-linen-50)" />
+    <div class="mx-auto grid max-w-[96rem] grid-cols-1 gap-12 px-gutter py-section lg:grid-cols-12">
+      <div class="lg:col-span-6">
+        <h2 id="table-title" class="text-3xl font-light">{s.table.title}</h2>
+        <div class="mt-6"><SizeTable /></div>
+        <h3 class="mt-12 text-2xl font-light">Fit, piece by piece</h3>
+        <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+          {s.fit.map((f) => (
+            <div class="border-t border-dashed border-linen-400 pt-3">
+              <dt class="font-semibold">{f.title}</dt>
+              <dd class="text-sm text-linen-700">{f.body}</dd>
+            </div>
+          ))}
+        </dl>
+        <a href="/shop/made-to-measure" class="link-thread mt-6 text-madder-700">{s.madeToMeasure.label} <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="lg:col-span-5 lg:col-start-8" aria-labelledby="measure-title">
+        <h2 id="measure-title" class="text-3xl font-light">{s.measure.title}</h2>
+        <div class="relative mx-auto mt-6 w-[min(100%,22rem)]">
+          <GarmentSketch sketch="shirt" colours={['natural']} hanger={false} label="Shirt sketch showing where to measure chest, waist, hip and length" />
+          <svg viewBox="0 -54 300 394" class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+            <g stroke="var(--color-madder-600)" stroke-width="1.5" fill="none" stroke-dasharray="5 4">
+              <path d="M94,128 L206,128" />
+              <path d="M96,210 L204,210" />
+              <path d="M94,290 L206,290" />
+              <path d="M238,46 L238,318" />
+            </g>
+            {points.map((p, i) => (
+              <g>
+                <circle cx={p.x} cy={p.y} r="11" fill="var(--color-madder-600)" />
+                <text x={p.x} y={p.y + 4} text-anchor="middle" font-size="12" font-family="var(--font-mono)" fill="var(--color-linen-50)">{i + 1}</text>
+              </g>
+            ))}
+          </svg>
+        </div>
+        <ol class="mt-6 space-y-3">
+          {s.measure.steps.map((m, i) => (
+            <li class="grid grid-cols-[2rem_1fr] gap-2">
+              <span class="grid h-7 w-7 place-items-center rounded-full bg-madder-600 font-mono text-xs text-linen-50">{i + 1}</span>
+              <span><strong>{m.title}.</strong> {m.body}</span>
+            </li>
+          ))}
+        </ol>
+        <p class="mt-6 border-l-2 border-dashed border-madder-500 pl-4 text-sm text-linen-700">{s.measure.tip}</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="care" class="on-dark relative bg-indigo-900 text-linen-100" aria-labelledby="care-title">
+    <Edge fill="var(--color-indigo-900)" />
+    <div class="mx-auto max-w-[96rem] px-gutter py-section">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <h2 id="care-title" class="text-4xl font-light lg:col-span-6">{s.care.title}</h2>
+        <p class="text-lg text-linen-200 lg:col-span-5 lg:col-start-8 lg:self-end">{s.care.line}</p>
+      </div>
+      <ul class="mt-12 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-8 lg:grid-cols-3">
+        {s.care.items.map((c, i) => (
+          <li class="care-item">
+            <svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><path d={icons[i]} fill="none" stroke="var(--color-turmeric-300)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <h3 class="mt-3 font-display text-xl">{c.title}</h3>
+            <p class="mt-1 text-sm text-linen-200 sm:text-base">{c.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section id="exchanges" class="relative bg-linen-100" aria-labelledby="ex-title">
+    <Edge fill="var(--color-linen-100)" />
+    <div class="mx-auto grid max-w-[96rem] grid-cols-1 gap-6 px-gutter py-section lg:grid-cols-12">
+      <h2 id="ex-title" class="text-3xl font-light lg:col-span-4">{s.exchanges.title}</h2>
+      <div class="lg:col-span-6 lg:col-start-6">
+        <p class="text-lg">{s.exchanges.body}</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href={whatsappLink('Hello! I would like to exchange a piece.')} class="btn btn-primary" target="_blank" rel="noopener">Start an exchange on WhatsApp</a>
+          <a href={`mailto:${contact.email}`} class="btn btn-outline">Email us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .care-item { list-style: none; padding-top: 1rem; border-top: 1px dashed rgb(240 233 221 / 0.25); }
+</style>

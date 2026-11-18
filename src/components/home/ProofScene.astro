@@ -1,0 +1,161 @@
+---
+/** Scene 3: the proof. The hands behind the cloth, the real texture, softer every wash. */
+import { home } from '../../content/site';
+import Photo from '../Photo.astro';
+import Edge from '../Edge.astro';
+
+const { proof } = home;
+const words = proof.headline.split(' ');
+
+// Magnified weave (indigo weft over natural warp), drawn in three states of softness.
+const N = 9;
+const cell = 26;
+const rand = (i: number) => {
+  const x = Math.sin(i * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+};
+const states = [
+  { key: 'new', h: 11.5, rx: 4, weft: 'var(--color-indigo-800)', warp: 'var(--color-linen-200)', fibres: 0 },
+  { key: 'washed', h: 15, rx: 6.5, weft: 'var(--color-indigo-600)', warp: 'var(--color-linen-100)', fibres: 26 },
+  { key: 'soft', h: 18.5, rx: 9, weft: 'var(--color-indigo-600)', warp: 'var(--color-linen-50)', fibres: 90 },
+];
+const cells = Array.from({ length: N * N }, (_, k) => ({ i: k % N, j: Math.floor(k / N) }));
+---
+<section id="proof" class="scene on-dark relative z-[2] bg-charcoal-900 text-linen-100" data-scene aria-labelledby="proof-title">
+  <Edge fill="var(--color-charcoal-900)" />
+  <div class="scene-inner" data-sink-inner>
+    <div class="mx-auto grid max-w-[96rem] grid-cols-1 gap-y-14 px-gutter pt-section pb-section lg:grid-cols-12 lg:gap-x-8">
+      <!-- headline overlaps the photo on purpose -->
+      <div class="relative z-[3] lg:col-span-7 lg:col-start-1 lg:row-start-1 lg:pt-16">
+        <p class="tag text-madder-300" data-reveal>{proof.eyebrow}</p>
+        <h2 id="proof-title" class="mt-4 text-5xl font-light" aria-label={proof.headline}>
+          {words.map((w, i) => <>{i > 0 && ' '}<span class="rw" aria-hidden="true"><span class="rwi" data-rword>{w}</span></span></>)}
+        </h2>
+        <p class="mt-6 max-w-[38ch] text-lg text-linen-200" data-reveal>{proof.line}</p>
+        <div class="mt-6" data-reveal>
+          <a href={proof.link.href} class="link-thread text-linen-50">{proof.link.label} <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+
+      <div class="relative lg:col-span-5 lg:col-start-8 lg:row-start-1">
+        <div class="relative ml-auto w-[86%] sm:w-[70%] lg:w-full" data-drift="-0.12">
+          <Photo label="A weaver at the wooden loom, side light" alt="A weaver working at a wooden handloom" ratio={4 / 5} dark />
+        </div>
+        <div class="relative z-[2] -mt-[28%] w-[58%] sm:w-[42%] lg:-ml-[30%] lg:w-[58%]" data-drift="0.16">
+          <Photo label="Hands passing the shuttle" alt="A weaver's hands passing the shuttle through the warp" ratio={1} dark />
+        </div>
+      </div>
+
+      <!-- Softer every wash -->
+      <figure class="wash relative lg:col-span-6 lg:col-start-1 lg:row-start-2 lg:pr-10" data-wash aria-labelledby="wash-title">
+        <div class="grid grid-cols-[minmax(0,1fr)] items-end gap-6 sm:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
+          <div class="relative mx-auto aspect-square w-[min(70vw,15rem)] sm:mx-0 sm:w-full">
+            <svg viewBox="0 0 234 234" class="h-full w-full" role="img" aria-label="Magnified handloom weave, getting softer from new to washed to worn for a year">
+              <defs>
+                <clipPath id="wash-swatch"><path d="M6,4 L228,8 L230,226 L4,230 Z" /></clipPath>
+              </defs>
+              <g clip-path="url(#wash-swatch)">
+                {states.map((s, si) => (
+                  <g data-wash-state={s.key} class:list={['wash-state', { 'is-static-hidden': si !== states.length - 1 }]}>
+                    <rect width="234" height="234" fill="var(--color-indigo-950)" />
+                    {cells.map(({ i, j }) => {
+                      const over = (i + j) % 2 === 0;
+                      const pad = (cell - s.h) / 2;
+                      return over ? (
+                        <rect x={i * cell - 1} y={j * cell + pad} width={cell + 2} height={s.h} rx={s.rx} fill={s.weft} />
+                      ) : (
+                        <rect x={i * cell + pad} y={j * cell - 1} width={s.h} height={cell + 2} rx={s.rx} fill={s.warp} />
+                      );
+                    })}
+                    {Array.from({ length: s.fibres }, (_, f) => {
+                      const x = rand(f + si * 100) * 234;
+                      const y = rand(f * 7 + si * 31) * 234;
+                      const a = rand(f * 3 + 5) * Math.PI;
+                      return <path d={`M${x},${y} q${Math.cos(a) * 5},${Math.sin(a) * 5 - 3} ${Math.cos(a) * 11},${Math.sin(a) * 11}`} stroke="var(--color-linen-50)" stroke-width="0.6" fill="none" opacity="0.55" />;
+                    })}
+                  </g>
+                ))}
+              </g>
+            </svg>
+            <span class="tag absolute -bottom-3 left-3 bg-linen-100 px-2 py-1 text-charcoal-900">Magnified weave</span>
+          </div>
+          <div>
+            <h3 id="wash-title" class="text-2xl font-normal">{proof.washTitle}</h3>
+            <ol class="mt-4 flex gap-4 sm:flex-col sm:gap-2" aria-label="Stages">
+              {proof.washStages.map((st, i) => (
+                <li class="wash-stage tag flex items-center gap-2" data-wash-label={i}>
+                  <span class="wash-dot" aria-hidden="true"></span>{st}
+                </li>
+              ))}
+            </ol>
+            <p class="mt-4 max-w-[34ch] text-base text-linen-300">{proof.washLine}</p>
+          </div>
+        </div>
+        <div class="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+          <Photo label="Fabric close-up: new cloth" alt="Close-up of new handloom cotton" ratio={1} dark />
+          <Photo label="Fabric close-up: after a year of washing" alt="Close-up of handloom cotton after a year of washing, softer" ratio={1} dark />
+        </div>
+      </figure>
+
+      <!-- Sample notes on hang-tags -->
+      <div class="relative grid grid-cols-1 gap-6 self-start sm:grid-cols-2 lg:col-span-5 lg:col-start-8 lg:row-start-2 lg:pt-10">
+        {proof.notes.map((n, i) => (
+          <figure class:list={['note', i % 2 ? 'note-b' : 'note-a']} data-note>
+            <span class="note-sample tag">Sample</span>
+            <blockquote class="font-display text-xl leading-snug">“{n.quote}”</blockquote>
+            <figcaption class="tag mt-4 text-linen-700">{n.name} · {n.place}</figcaption>
+          </figure>
+        ))}
+      </div>
+
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-3 lg:col-span-12 lg:row-start-3">
+        <a href={proof.cta.href} class="btn btn-primary">{proof.cta.label} <span aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="scene-dim" data-sink-dim aria-hidden="true"></div>
+</section>
+
+<style>
+  .rw { display: inline-block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; vertical-align: top; }
+  .rwi { display: inline-block; }
+  .wash-state.is-static-hidden { opacity: 0; }
+  .wash-dot { width: 0.6rem; height: 0.6rem; border-radius: 1px; background: var(--color-linen-600); }
+  .wash-stage { color: var(--color-linen-300); }
+  .wash-stage:last-child { color: var(--color-linen-50); }
+  .wash-stage:last-child .wash-dot { background: var(--color-madder-500); }
+  .note {
+    position: relative;
+    padding: 2.4rem 1.5rem 1.4rem;
+    background: var(--color-linen-100);
+    color: var(--color-charcoal-900);
+    border-radius: var(--radius-xs);
+    clip-path: polygon(14% 0, 86% 0, 100% 9%, 100% 100%, 0 100%, 0 9%);
+  }
+  .note::before {
+    content: '';
+    position: absolute;
+    top: 0.85rem;
+    left: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-left: -0.35rem;
+    border-radius: 50%;
+    background: var(--color-charcoal-900);
+  }
+  .note-a { rotate: -2deg; }
+  .note-b { rotate: 1.5deg; translate: 0 2.5rem; }
+  .note-sample {
+    position: absolute;
+    top: 0.7rem;
+    right: 1rem;
+    padding: 0.15rem 0.45rem;
+    color: var(--color-madder-700);
+    box-shadow: inset 0 0 0 1px var(--color-madder-600);
+    border-radius: 2px;
+  }
+  @media (max-width: 639px) {
+    .note-b { translate: none; margin-left: 8%; }
+    .note-a { margin-right: 8%; }
+  }
+</style>

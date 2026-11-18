@@ -1,0 +1,68 @@
+---
+/**
+ * Shared SVG definitions: plain-weave cloth patterns for every dye colour,
+ * and single woven rows (weft over/under the warp) used by the loom.
+ * Rendered once per page; any inline SVG can use url(#weave-indigo) etc.
+ */
+const tones = {
+  // weft (main), warp (crossing threads), gap (shadow between), hi (highlight)
+  indigo: { weft: 'var(--color-indigo-600)', warp: 'var(--color-indigo-800)', gap: 'var(--color-indigo-950)', hi: 'var(--color-indigo-400)' },
+  madder: { weft: 'var(--color-madder-600)', warp: 'var(--color-madder-700)', gap: 'var(--color-madder-800)', hi: 'var(--color-madder-500)' },
+  turmeric: { weft: 'var(--color-turmeric-500)', warp: 'var(--color-turmeric-600)', gap: 'var(--color-turmeric-700)', hi: 'var(--color-turmeric-300)' },
+  natural: { weft: 'var(--color-linen-200)', warp: 'var(--color-linen-300)', gap: 'var(--color-linen-400)', hi: 'var(--color-linen-50)' },
+  charcoal: { weft: 'var(--color-charcoal-700)', warp: 'var(--color-charcoal-800)', gap: 'var(--color-charcoal-950)', hi: 'var(--color-charcoal-500)' },
+} as const;
+const names = Object.keys(tones) as (keyof typeof tones)[];
+---
+<svg class="absolute h-0 w-0 overflow-hidden" aria-hidden="true" focusable="false">
+  <defs>
+    {names.map((n) => {
+      const t = tones[n];
+      return (
+        <>
+          {/* Round-thread shading */}
+          <linearGradient id={`thread-${n}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color={t.gap} />
+            <stop offset="0.45" stop-color={t.hi} />
+            <stop offset="1" stop-color={t.weft} />
+          </linearGradient>
+          {/* Plain weave cloth, yarn-dyed */}
+          <pattern id={`weave-${n}`} width="6" height="6" patternUnits="userSpaceOnUse">
+            <rect width="6" height="6" fill={t.gap} />
+            <rect x="0.1" y="0.35" width="3.2" height="2.3" rx="1.1" fill={t.weft} />
+            <rect x="3.35" y="0.05" width="2.3" height="2.9" rx="1.1" fill={t.warp} />
+            <rect x="0.35" y="3.05" width="2.3" height="2.9" rx="1.1" fill={t.warp} />
+            <rect x="2.75" y="3.35" width="3.2" height="2.3" rx="1.1" fill={t.weft} />
+            <rect x="0.6" y="0.9" width="2" height="0.55" rx="0.27" fill={t.hi} opacity="0.55" />
+            <rect x="3.25" y="3.9" width="2" height="0.55" rx="0.27" fill={t.hi} opacity="0.55" />
+          </pattern>
+          {/* One woven row for the loom: weft across, natural warp rising over it */}
+          {['a', 'b'].map((parity) => (
+            <pattern id={`row-${n}-${parity}`} width="12" height="6" patternUnits="userSpaceOnUse">
+              <rect width="12" height="6" fill={t.gap} />
+              <rect x="0" y="0.55" width="12" height="4.9" rx="2.4" fill={`url(#thread-${n})`} />
+              <rect x={parity === 'a' ? 7.55 : 1.55} y="-0.2" width="2.9" height="6.4" rx="1.4" fill="url(#warp-thread)" />
+            </pattern>
+          ))}
+        </>
+      );
+    })}
+    <linearGradient id="warp-thread" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--color-linen-400)" />
+      <stop offset="0.5" stop-color="var(--color-linen-50)" />
+      <stop offset="1" stop-color="var(--color-linen-300)" />
+    </linearGradient>
+    {/* Soft light and side shading for garments */}
+    <linearGradient id="garment-shade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--color-charcoal-950)" stop-opacity="0.22" />
+      <stop offset="0.18" stop-color="var(--color-charcoal-950)" stop-opacity="0" />
+      <stop offset="0.55" stop-color="var(--color-linen-50)" stop-opacity="0.08" />
+      <stop offset="0.85" stop-color="var(--color-charcoal-950)" stop-opacity="0.04" />
+      <stop offset="1" stop-color="var(--color-charcoal-950)" stop-opacity="0.26" />
+    </linearGradient>
+    <radialGradient id="garment-light" cx="0.3" cy="0.15" r="0.8">
+      <stop offset="0" stop-color="var(--color-sun)" stop-opacity="0.28" />
+      <stop offset="1" stop-color="var(--color-sun)" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+</svg>

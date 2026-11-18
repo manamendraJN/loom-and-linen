@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import Edge from '../components/Edge.astro';
+import Photo from '../components/Photo.astro';
+import { contactPage as c, contact, whatsappLink } from '../content/site';
+
+const direct = [
+  { label: c.direct.whatsapp, value: contact.whatsappDisplay, href: whatsappLink(contact.whatsappGreeting), note: 'Quickest. A message is ready for you.', tone: 'bg-madder-700 text-linen-50', external: true },
+  { label: c.direct.phone, value: contact.phoneDisplay, href: `tel:${contact.phoneHref}`, note: 'During opening hours.', tone: 'bg-indigo-800 text-linen-50', external: false },
+  { label: c.direct.email, value: contact.email, href: `mailto:${contact.email}`, note: 'For longer questions.', tone: 'bg-turmeric-500 text-charcoal-900', external: false },
+];
+---
+<BaseLayout title={c.meta.title} description={c.meta.description}>
+  <PageHead eyebrow={c.eyebrow} title={c.headline} intro={c.intro}>
+    <ul class="grid grid-cols-1 gap-3">
+      {direct.map((d, i) => (
+        <li class="list-none" style={`rotate:${[-1.2, 0.8, -0.5][i]}deg`}>
+          <a href={d.href} class:list={['direct', d.tone]} target={d.external ? '_blank' : undefined} rel={d.external ? 'noopener' : undefined}>
+            <span class="tag opacity-80">{d.label}</span>
+            <span class="font-display text-2xl break-all">{d.value}</span>
+            <span class="text-sm opacity-85">{d.note}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </PageHead>
+
+  <section class="relative bg-linen-50" aria-labelledby="form-title">
+    <Edge fill="var(--color-linen-50)" />
+    <div class="mx-auto grid max-w-[96rem] grid-cols-1 gap-14 px-gutter py-section lg:grid-cols-12">
+      <form
+        id="message"
+        class="lg:col-span-6"
+        action={contact.formspreeEndpoint}
+        method="POST"
+        data-formspree
+        data-sending={c.form.sending}
+        data-success={c.form.success}
+        data-error={c.form.error}
+        data-not-connected="This form isn’t connected yet. [Add your Formspree form ID in src/content/site.ts.] Please use WhatsApp or email for now."
+      >
+        <h2 id="form-title" class="text-3xl font-light">{c.form.title}</h2>
+        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label>
+            <span class="tag mb-1 block text-linen-700">{c.form.name}</span>
+            <input class="field" type="text" name="name" autocomplete="name" required />
+          </label>
+          <label>
+            <span class="tag mb-1 block text-linen-700">{c.form.email}</span>
+            <input class="field" type="email" name="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span class="tag mb-1 block text-linen-700">{c.form.phone}</span>
+            <input class="field" type="tel" name="phone" autocomplete="tel" />
+          </label>
+          <label>
+            <span class="tag mb-1 block text-linen-700">{c.form.topic}</span>
+            <select class="field" name="topic">
+              {c.form.topics.map((t) => <option>{t}</option>)}
+            </select>
+          </label>
+          <label class="sm:col-span-2">
+            <span class="tag mb-1 block text-linen-700">{c.form.message}</span>
+            <textarea class="field" name="message" rows="5" required></textarea>
+          </label>
+          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+        </div>
+        <button type="submit" class="btn btn-primary mt-6">{c.form.send}</button>
+        <p class="mt-4 text-sm font-semibold text-madder-700" role="status" data-form-status></p>
+      </form>
+
+      <div class="lg:col-span-5 lg:col-start-8">
+        <h2 class="text-3xl font-light">{c.direct.studio}</h2>
+        <address class="mt-4 text-lg not-italic">
+          {contact.address.map((l) => <span class="block">{l}</span>)}
+        </address>
+        <p class="mt-2 text-sm text-linen-700">{contact.mapNote}</p>
+        <h3 class="tag mt-8 text-madder-700">{c.direct.hours}</h3>
+        <ul class="mt-2">
+          {contact.hours.map((h) => <li class="flex justify-between gap-4 border-b border-dashed border-linen-400 py-2"><span>{h.days}</span><span class="font-mono text-sm">{h.time}</span></li>)}
+        </ul>
+        <div class="mt-8"><Photo label="[Map embed or a photo of the studio entrance]" alt="The Loom & Linen studio entrance" ratio={3 / 2} /></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .direct {
+    display: grid;
+    gap: 0.2rem;
+    padding: 1.1rem 1.3rem;
+    border-radius: var(--radius-xs);
+    text-decoration: none;
+    box-shadow: var(--shadow-tag);
+    transition: transform 0.4s var(--ease-settle);
+  }
+  .direct:hover { transform: translateX(6px); }
+</style>

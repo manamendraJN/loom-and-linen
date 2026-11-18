@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import ProductCard from '../../components/shop/ProductCard.astro';
+import { shopPage, categories, products } from '../../content/site';
+
+const groups = categories.map((c) => ({ ...c, items: products.filter((p) => p.category === c.id) })).filter((g) => g.items.length);
+const swatches = [
+  { c: 'indigo', r: -6, x: 0, y: 10 },
+  { c: 'madder', r: 4, x: 30, y: 0 },
+  { c: 'turmeric', r: -2, x: 54, y: 16 },
+  { c: 'natural', r: 7, x: 18, y: 42 },
+];
+---
+<BaseLayout title={shopPage.meta.title} description={shopPage.meta.description}>
+  <PageHead eyebrow={shopPage.eyebrow} title={shopPage.headline} intro={shopPage.line}>
+    <div class="relative mx-auto aspect-[4/3] w-[min(100%,26rem)]" aria-hidden="true">
+      {swatches.map((s) => (
+        <svg viewBox="0 0 200 200" class="cut absolute w-[46%] drop-shadow-sm" style={`left:${s.x}%;top:${s.y}%;rotate:${s.r}deg`}>
+          <path d="M6,8 L194,4 L196,192 L4,196 Z" fill={`url(#weave-${s.c})`} transform="scale(1)" />
+        </svg>
+      ))}
+    </div>
+  </PageHead>
+
+  <div class="sticky top-[var(--spacing-header)] z-[20] border-y border-dashed border-linen-400 bg-linen-100/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[96rem] items-center gap-1 overflow-x-auto px-gutter py-1.5" role="group" aria-label="Filter the collection" data-filters data-lenis-prevent>
+      <button type="button" class="chip shrink-0" data-filter="all" aria-pressed="true">All</button>
+      {groups.map((g) => <button type="button" class="chip shrink-0" data-filter={g.id} aria-pressed="false">{g.label}</button>)}
+    </div>
+  </div>
+  <p class="sr-only" aria-live="polite" data-filter-status></p>
+
+  <div class="mx-auto max-w-[96rem] px-gutter pb-section">
+    {groups.map((g, gi) => (
+      <section id={g.id} data-cat={g.id} class="pt-14 sm:pt-20" aria-labelledby={`cat-${g.id}`}>
+        <header class="mb-8 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-b border-dashed border-linen-400 pb-4">
+          <h2 id={`cat-${g.id}`} class="text-3xl font-light">
+            <span class="tag mr-3 align-middle text-madder-700">{String(gi + 1).padStart(2, '0')}</span>{g.label}
+          </h2>
+          <p class="text-linen-700">{g.line}</p>
+        </header>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-6 md:grid-cols-3 xl:grid-cols-4">
+          {g.items.map((p) => <ProductCard product={p} />)}
+        </div>
+      </section>
+    ))}
+  </div>
+</BaseLayout>

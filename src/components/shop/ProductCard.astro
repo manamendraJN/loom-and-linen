@@ -1,0 +1,49 @@
+---
+/** A piece in the shop grid: a swatch-book page with the sketch, price and colours. */
+import { colours as colourInfo, type Product } from '../../content/site';
+import GarmentSketch from '../GarmentSketch.astro';
+import Swatches from './Swatches.astro';
+
+interface Props { product: Product; headingLevel?: 'h2' | 'h3' }
+const { product: p, headingLevel = 'h3' } = Astro.props;
+const H = headingLevel;
+const href = `/shop/${p.slug}`;
+---
+<article class="card group" data-piece data-slug={p.slug} data-name={p.name}>
+  <a href={`${href}?colour=${p.colours[0]}`} data-order-link={href} class="card-visual" tabindex="-1" aria-hidden="true">
+    <GarmentSketch sketch={p.sketch} colours={p.colours} label={`Flat sketch of ${p.name}`} hanger={p.sketch !== 'giftcard'} class="card-sketch" />
+  </a>
+  <div class="mt-3 flex items-start justify-between gap-2">
+    <H class="font-display text-lg leading-tight sm:text-xl">
+      <a href={`${href}?colour=${p.colours[0]}`} data-order-link={href} class="card-link">{p.name}</a>
+    </H>
+    <span class="shrink-0 font-mono text-sm">{p.price.display}</span>
+  </div>
+  <p class="tag mt-1 text-linen-700">{p.cloth}{p.colours.length > 1 && <span class="hidden sm:inline"> · <span data-colour-name>{colourInfo[p.colours[0]].name}</span></span>}</p>
+  {p.colours.length > 1 && (
+    <>
+      <div class="relative z-[2] mt-1 -ml-2 hidden sm:block"><Swatches colours={p.colours} /></div>
+      <p class="mt-2 flex items-center gap-1.5 sm:hidden" aria-label={`Colours: ${p.colours.map((c) => colourInfo[c].name).join(', ')}`}>
+        {p.colours.map((c) => <span class={`sw-${c} inline-block h-3.5 w-3.5 rounded-[2px]`} aria-hidden="true"></span>)}
+      </p>
+    </>
+  )}
+</article>
+
+<style>
+  .card { position: relative; }
+  .card-visual {
+    display: block;
+    padding: 1.8rem 10% 1rem;
+    background: var(--color-linen-200);
+    border-radius: var(--radius-xs);
+    transition: transform 0.5s var(--ease-settle);
+  }
+  .card:hover .card-visual { transform: translateY(-4px); }
+  .card :global(.card-sketch) { transition: transform 0.6s var(--ease-settle); transform-origin: 50% 0; }
+  .card:hover :global(.card-sketch) { transform: rotate(-1.5deg); }
+  .card-link { text-decoration: none; }
+  .card-link::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+  .card-link:focus-visible { outline: none; }
+  .card:has(.card-link:focus-visible) .card-visual { outline: 2px solid var(--color-madder-500); outline-offset: 3px; }
+</style>

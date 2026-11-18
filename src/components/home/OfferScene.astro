@@ -1,0 +1,157 @@
+---
+/**
+ * Scene 4: the offer. A rail again, but this time every piece is different.
+ * Desktop with motion: the rail scrolls sideways while pinned.
+ * Phones / reduced motion: a native swipe rail.
+ */
+import { home, products, colours as colourInfo } from '../../content/site';
+import GarmentSketch from '../GarmentSketch.astro';
+import Swatches from '../shop/Swatches.astro';
+import Sizes from '../shop/Sizes.astro';
+import Edge from '../Edge.astro';
+
+const { offer } = home;
+const pieces = products.filter((p) => p.featured);
+---
+<section id="collection" class="scene relative z-[3] bg-linen-50" data-scene aria-labelledby="offer-title">
+  <Edge fill="var(--color-linen-50)" />
+  <div class="scene-inner">
+    <div class="offer-pin" data-hpin>
+      <header class="offer-head" data-sink-inner>
+        <p class="tag text-madder-700">{offer.eyebrow}</p>
+        <h2 id="offer-title" class="mt-3 text-4xl font-light">{offer.headline}</h2>
+        <p class="mt-4 max-w-[30ch] text-lg text-linen-700">{offer.line}</p>
+        <a href={offer.link.href} class="link-thread mt-3 whitespace-nowrap text-madder-700">{offer.link.label} <span aria-hidden="true">→</span></a>
+        <p class="tag mt-6 text-linen-700 md:hidden" aria-hidden="true">Swipe the rail →</p>
+      </header>
+
+      <div class="offer-viewport" data-hviewport data-sink-inner>
+        <ul class="offer-track" data-htrack>
+          <li class="track-rod" aria-hidden="true"></li>
+          {pieces.map((p, i) => (
+            <li class="piece" data-hitem data-piece data-slug={p.slug} data-name={p.name} style={`--tilt:${i % 2 ? 1.2 : -1.4}deg`}>
+              <GarmentSketch sketch={p.sketch} colours={p.colours} label={`Flat sketch of ${p.name}`} class="piece-sketch" />
+              <div class="hangtag">
+                <span class="hangtag-hole" aria-hidden="true"></span>
+                <h3 class="font-display text-xl leading-tight">{p.name}</h3>
+                <p class="tag mt-1 text-linen-700">{p.cloth} · <span data-colour-name>{colourInfo[p.colours[0]].name}</span></p>
+                <p class="mt-2 font-mono text-sm">{p.price.display}</p>
+                <Swatches colours={p.colours} class="mt-2 -ml-2" />
+                <Sizes sizes={p.sizes} class="mt-1" />
+                <a href={`/shop/${p.slug}?colour=${p.colours[0]}#order`} data-order-link={`/shop/${p.slug}`} class="btn btn-primary mt-3 w-full">Order <span class="sr-only">{p.name}</span></a>
+              </div>
+            </li>
+          ))}
+          <li class="piece piece-more" data-hitem>
+            <a href="/shop#made-to-measure" class="more-card">
+              <span class="tag text-madder-300">More</span>
+              <span class="font-display text-2xl leading-tight">{offer.moreTitle}</span>
+              <span class="text-base text-linen-200">{offer.moreLine}</span>
+              <span class="link-thread text-linen-50">{offer.link.label} <span aria-hidden="true">→</span></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="scene-dim" data-sink-dim aria-hidden="true"></div>
+</section>
+
+<style>
+  .offer-pin { position: relative; padding: var(--spacing-section) 0 calc(var(--spacing-section) * 0.6); }
+  .offer-head { padding: 0 var(--spacing-gutter); max-width: 40rem; }
+  .offer-viewport {
+    margin-top: 2.5rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--spacing-gutter);
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-linen-400) transparent;
+    padding-bottom: 1rem;
+  }
+  .offer-track {
+    position: relative;
+    display: flex;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    width: max-content;
+    padding: 2.5rem var(--spacing-gutter) 1rem;
+  }
+  .track-rod {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2.25rem;
+    height: 9px;
+    border-radius: 5px;
+    background: linear-gradient(180deg, var(--color-wood-300), var(--color-wood-500) 55%, var(--color-wood-900));
+  }
+  .piece {
+    position: relative;
+    width: min(78vw, 19.5rem);
+    flex: none;
+    scroll-snap-align: center;
+    list-style: none;
+  }
+  .piece :global(.piece-sketch) { width: 84%; margin: -1.6rem auto 0; transform: rotate(var(--tilt)); transform-origin: 50% 0; }
+  .hangtag {
+    position: relative;
+    margin-top: -0.5rem;
+    padding: 1.4rem 1.1rem 1.1rem;
+    background: var(--color-linen-100);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-tag);
+  }
+  .hangtag-hole {
+    position: absolute;
+    top: 0.55rem;
+    left: 50%;
+    width: 0.55rem;
+    height: 0.55rem;
+    margin-left: -0.27rem;
+    border-radius: 50%;
+    background: var(--color-linen-300);
+    box-shadow: inset 0 1px 1px rgb(32 30 27 / 0.3);
+  }
+  .piece-more { display: flex; align-items: stretch; }
+  .more-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 1.6rem 1.4rem;
+    background: var(--color-indigo-800);
+    color: var(--color-linen-50);
+    border-radius: var(--radius-xs);
+    text-decoration: none;
+  }
+
+  /* Desktop with motion: pinned horizontal rail, header on the left */
+  @media (min-width: 768px) {
+    :global(.motion-ok) .offer-pin {
+      height: 100svh;
+      padding: 0;
+      display: grid;
+      grid-template-columns: minmax(16rem, 30vw) 1fr;
+      align-items: center;
+      overflow: hidden;
+    }
+    :global(.motion-ok) .offer-head {
+      position: relative;
+      z-index: 2;
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: var(--color-linen-50);
+      padding-top: var(--spacing-header);
+    }
+    :global(.motion-ok) .offer-viewport { min-width: 0; overflow: visible; margin-top: 0; padding: 0; scroll-snap-type: none; }
+    :global(.motion-ok) .offer-track { padding-left: 2rem; padding-top: calc(var(--spacing-header) + 1.5rem); }
+    :global(.motion-ok) .offer-head h2 { font-size: var(--text-3xl); }
+    :global(.motion-ok) .piece { width: clamp(16rem, 38svh, 20rem); }
+    :global(.motion-ok) .piece :global(.piece-sketch) { width: min(72%, 30svh); }
+  }
+</style>

@@ -1,0 +1,381 @@
+---
+/**
+ * Scenes 1–2 (+ the start of 3) as one pinned, layered scroll scene.
+ * Without motion (reduced motion or no JS) it renders as two still panels:
+ * the labelled "fast fashion" example, then the studio with the finished
+ * cloth and the shirt it became.
+ */
+import { home, type ColourId } from '../../content/site';
+import Loom from '../art/Loom.astro';
+import FastFashionRail from '../art/FastFashionRail.astro';
+import ClothShelves from '../art/ClothShelves.astro';
+import Spool from '../art/Spool.astro';
+import GarmentSketch from '../GarmentSketch.astro';
+
+const { hook, turn } = home;
+const stripes: ColourId[] = [
+  'natural', 'natural', 'natural', 'indigo', 'indigo', 'indigo', 'natural', 'madder', 'natural', 'natural',
+  'natural', 'turmeric', 'turmeric', 'natural', 'natural', 'indigo', 'natural', 'natural', 'natural', 'madder',
+  'madder', 'madder', 'natural', 'natural', 'indigo', 'indigo', 'indigo', 'natural', 'natural', 'natural',
+];
+const foldRows = stripes.map((c, i) => ({ c, y: 600 - (i + 1) * 6, p: i % 2 ? 'b' : 'a' }));
+const lines = turn.headline.split(/(?<=\.)\s+/).map((l) => l.split(' '));
+---
+<section class="hero" data-hero data-scene aria-labelledby="hook-title">
+  <div class="hero-pin" data-hero-pin>
+    <div class="hero-sink" data-sink-inner>
+      <!-- ============ SCENE 1: the hook (a labelled example) ============ -->
+      <div class="hero-cover" data-cover>
+        <div class="loom-geo">
+          <div class="cover-rail" data-cover-rail>
+            <FastFashionRail />
+          </div>
+          <p class="cover-tag" data-cover-tag>
+            <span class="tag font-medium">{hook.tag}</span>
+            <span class="tag opacity-70">{hook.tagNote}</span>
+          </p>
+        </div>
+        <div class="hero-copy" data-cover-copy>
+          <h1 id="hook-title" class="hero-title text-charcoal-900">{hook.headline}</h1>
+          <p class="mt-5 max-w-[30ch] text-lg text-charcoal-800">{hook.line}</p>
+        </div>
+        <p class="scroll-hint motion-only tag" data-hint aria-hidden="true">
+          <span>{hook.hint}</span>
+          <svg width="14" height="34" viewBox="0 0 14 34"><path d="M7,0 C11,8 3,14 7,22 C9,26 7,30 7,34" fill="none" stroke="var(--color-madder-500)" stroke-width="1.6" /></svg>
+        </p>
+      </div>
+
+      <!-- ============ SCENE 2: the turn, the studio in depth ============ -->
+      <div class="hero-studio" data-studio>
+        <div class="layer l-bg" data-depth="0.15" aria-hidden="true">
+          <div class="wall"></div>
+          <svg class="window-light" viewBox="0 0 400 300" preserveAspectRatio="none">
+            <g fill="var(--color-sun)">
+              <path d="M60,10 L190,0 L176,138 L40,148 Z" />
+              <path d="M206,0 L340,-8 L330,128 L192,137 Z" />
+              <path d="M36,164 L174,154 L160,290 L18,300 Z" />
+              <path d="M190,152 L328,143 L318,278 L176,288 Z" />
+            </g>
+          </svg>
+          <div class="floor"></div>
+        </div>
+
+        <div class="layer l-far" data-depth="0.3" aria-hidden="true">
+          <div class="shelves" data-shelves><ClothShelves /></div>
+        </div>
+
+        <div class="layer l-mid" data-depth="0.55" aria-hidden="true">
+          <div class="loom-geo"><div class="loom-inner" data-loom><Loom stripes={stripes} /></div></div>
+        </div>
+
+        <!-- the finished cloth lifts off the loom, folds, and travels forward -->
+        <div class="layer l-travel motion-only" data-depth="0.55" aria-hidden="true">
+          <div class="loom-geo">
+            <div class="cloth-ref" data-cloth-ref></div>
+            <div class="fold-cloth" data-fold>
+              <div class="fold-half fold-top">
+                <svg viewBox="150 420 300 90" preserveAspectRatio="none">{foldRows.map((r) => <rect x="150" y={r.y} width="300" height="6" fill={`url(#row-${r.c}-${r.p})`} />)}</svg>
+              </div>
+              <div class="fold-half fold-bottom" data-fold-bottom>
+                <div class="fold-face">
+                  <svg viewBox="150 510 300 90" preserveAspectRatio="none">{foldRows.map((r) => <rect x="150" y={r.y} width="300" height="6" fill={`url(#row-${r.c}-${r.p})`} />)}</svg>
+                </div>
+                <div class="fold-face fold-back">
+                  <svg viewBox="150 510 300 90" preserveAspectRatio="none">{foldRows.map((r) => <rect x="150" y={r.y} width="300" height="6" fill={`url(#row-${r.c}-${r.p})`} />)}</svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer l-near" data-depth="0.85">
+          <div class="rail-geo">
+            <div class="rail-inner" data-rail>
+              <div class="rod" aria-hidden="true"></div>
+              <div class="shirt-anchor" data-shirt-anchor>
+                <div data-shirt>
+                  <GarmentSketch sketch="shirt" colours={['natural']} stripes={stripes} label="Illustration: the striped cloth, made into a shirt on a hanger" />
+                </div>
+              </div>
+            </div>
+            <p class="fold-caption font-display" data-fold-caption>{turn.fold}</p>
+          </div>
+        </div>
+
+        <div class="layer l-fg" data-depth="1.4" aria-hidden="true">
+          <div class="fg-pass" data-fg>
+            <svg class="curl" viewBox="0 0 1000 200" preserveAspectRatio="none">
+              <path d="M60,150 C220,40 330,210 470,120 S700,10 820,90 S960,170 1040,60" fill="none" stroke="var(--color-madder-500)" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linecap="round" />
+            </svg>
+            <div class="spool" data-spool><Spool /></div>
+          </div>
+        </div>
+
+        <div class="hero-copy hero-copy--turn" data-turn-copy>
+          <h2 class="hero-title text-charcoal-900" aria-label={turn.headline}>
+            {lines.map((line, li) => (
+              <>{li > 0 && ' '}<span class="hl" aria-hidden="true">{line.map((w, i) => (
+                <>{i > 0 && ' '}<span class="w"><span class="wi" data-word>{w}</span></span></>
+              ))}</span></>
+            ))}
+          </h2>
+          <p class="mt-5 max-w-[32ch] text-lg text-charcoal-800" data-turn-line>{turn.line}</p>
+          <a href={turn.link.href} class="link-thread mt-2 text-madder-700" data-turn-link>{turn.link.label} <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+
+      <!-- the thread being pulled: from the grey shirt down into the loom -->
+      <div class="layer l-thread motion-only" data-depth="0.55" aria-hidden="true">
+        <div class="loom-geo">
+          <div class="pull-outer" data-pull-outer>
+            <div class="pull-inner" data-pull-inner>
+              <svg viewBox="0 0 600 760" class="block h-full w-full overflow-visible">
+                <path d="M145,254 C150,290 132,318 140,352 C148,388 120,420 126,460 C132,500 108,530 114,566 C116,582 106,594 96,600" fill="none" stroke="var(--color-madder-500)" stroke-width="2.4" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-dim" data-sink-dim aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; z-index: 1; }
+  .hero-pin { position: relative; }
+  .hero-sink { position: relative; }
+  .hero-cover,
+  .hero-studio { position: relative; min-height: 100svh; overflow: hidden; }
+  .hero-cover { z-index: 3; background: var(--color-steel-300); }
+  .hero-studio { z-index: 1; background: var(--color-linen-200); }
+
+  :global(.motion-ok) .hero-pin { height: 100svh; overflow: hidden; }
+  :global(.motion-ok) .hero-sink { height: 100%; }
+  :global(.motion-ok) .hero-cover,
+  :global(.motion-ok) .hero-studio { position: absolute; inset: 0; min-height: 0; }
+
+  .layer { position: absolute; inset: 0; pointer-events: none; }
+  .l-near { pointer-events: none; z-index: 4; }
+  .l-fg { z-index: 6; }
+  .l-thread { z-index: 7; }
+  .hero-dim { position: absolute; inset: 0; z-index: 9; background: var(--color-charcoal-950); opacity: 0; pointer-events: none; }
+
+  /* Geometry shared by every layer that lines up with the loom */
+  .loom-geo {
+    position: absolute;
+    aspect-ratio: 600 / 760;
+    height: min(94svh, 1040px);
+    bottom: -2svh;
+    left: max(42%, calc(100% - min(94svh, 1040px) * 0.79 - 22vw));
+  }
+  /* Phones: the copy owns the top of the screen; the loom fills only the space left below it,
+     so short screens (browser bars showing) never put the loom under the text. */
+  .hero-pin { --copy-end: calc(var(--spacing-header) + 16.5rem); }
+  @media (max-width: 767px) {
+    .loom-geo {
+      height: min(127vw, calc(100svh - var(--copy-end) - 0.5rem));
+      left: 50%;
+      translate: -50% 0;
+      bottom: -2svh;
+    }
+  }
+
+  /* --- Scene 1: the grey example --- */
+  .cover-rail { position: absolute; top: 6%; left: -173%; width: 390%; }
+  .cover-tag {
+    position: absolute;
+    top: 1.5%;
+    left: 2%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0.7rem 0.55rem;
+    background: var(--color-linen-50);
+    color: var(--color-charcoal-900);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-tag);
+    transform: rotate(-3deg);
+    white-space: nowrap;
+  }
+  @media (max-width: 767px) {
+    .cover-tag { top: -2%; left: auto; right: 0; }
+  }
+
+  /* --- Copy --- */
+  .hero-copy {
+    position: absolute;
+    z-index: 8;
+    left: var(--spacing-gutter);
+    top: 42svh; /* just below the grey shirts' hems (≈39svh) */
+    width: min(44vw, 40rem);
+  }
+  .hero-title {
+    font-size: clamp(2.6rem, 1rem + 4vw, 5.4rem);
+    line-height: 0.98;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+  }
+  .w { display: inline-block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; vertical-align: top; }
+  .wi { display: inline-block; }
+  .hl { display: block; white-space: nowrap; }
+  @media (max-width: 767px) {
+    .hero-copy { top: calc(var(--spacing-header) + 1.25rem); width: auto; right: var(--spacing-gutter); }
+    .hero-title { font-size: clamp(2.1rem, 9.4vw, 3.2rem); }
+    .hero-copy p { font-size: var(--text-base); line-height: 1.5; margin-top: 0.9rem; }
+  }
+  /* Short landscape screens */
+  @media (min-width: 768px) and (max-height: 560px) {
+    .hero-title { font-size: 2.3rem; }
+    .hero-copy p { font-size: var(--text-sm); margin-top: 0.75rem; }
+  }
+  .scroll-hint {
+    position: absolute;
+    z-index: 8;
+    left: 50%;
+    bottom: 3svh;
+    translate: -50% 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-charcoal-800);
+  }
+  :global(.motion-ok) .scroll-hint { display: flex; }
+
+  /* --- Scene 2: studio layers --- */
+  .l-bg { inset: -4%; }
+  .wall {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(70% 60% at 22% 26%, color-mix(in srgb, var(--color-sun) 70%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--color-linen-100), var(--color-linen-200) 70%);
+  }
+  .window-light {
+    position: absolute;
+    left: 4%;
+    top: 4%;
+    width: 38%;
+    height: 50%;
+    filter: blur(16px);
+    opacity: 0.75;
+    transform: skewX(-8deg);
+  }
+  .floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 18%;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--color-linen-400) 55%, transparent) 22%, color-mix(in srgb, var(--color-linen-400) 80%, transparent));
+  }
+  .shelves {
+    position: absolute;
+    right: 2vw;
+    top: 8svh;
+    width: min(30vw, 30rem);
+    filter: blur(3px);
+    opacity: 0.8;
+  }
+  @media (max-width: 767px) {
+    .window-light { width: 80%; height: 34%; top: 2%; left: -6%; }
+    .shelves { width: 52vw; right: -8vw; top: 40svh; }
+  }
+
+  /* travelling cloth sits exactly on the loom's woven area */
+  .cloth-ref,
+  .fold-cloth { position: absolute; left: 25%; top: 55.263%; width: 50%; height: 23.684%; }
+  .fold-cloth { opacity: 0; perspective: 900px; transform-style: preserve-3d; }
+  .fold-half { position: absolute; left: 0; width: 100%; height: 50%; }
+  .fold-half svg { display: block; width: 100%; height: 100%; }
+  .fold-top { top: 0; }
+  .fold-bottom { top: 50%; transform-origin: 50% 0; transform-style: preserve-3d; }
+  .fold-face { position: absolute; inset: 0; backface-visibility: hidden; }
+  .fold-back { transform: rotateX(180deg); }
+  .fold-back::after { content: ''; position: absolute; inset: 0; background: var(--color-charcoal-950); opacity: 0.28; }
+
+  .rail-geo {
+    position: absolute;
+    right: 5vw;
+    top: 12svh;
+    width: min(23vw, 22rem);
+  }
+  @media (max-width: 767px) {
+    .rail-geo {
+      right: auto;
+      left: 50%;
+      translate: -50% 0;
+      top: calc(var(--copy-end) + 0.75rem);
+      width: min(58vw, calc((100svh - var(--copy-end) - 6rem) * 0.76));
+    }
+    .fold-caption { font-size: var(--text-lg); width: max-content; max-width: min(80vw, 18rem); margin-left: 50%; translate: -50% 0; }
+  }
+  .rod {
+    position: absolute;
+    left: -30%;
+    width: 260%;
+    top: 0.2%;
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(180deg, var(--color-wood-300), var(--color-wood-500) 55%, var(--color-wood-900));
+  }
+  .rod::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -14px;
+    width: 18px;
+    height: 34px;
+    border-radius: 3px;
+    background: var(--color-wood-700);
+  }
+  .shirt-anchor { position: relative; }
+  .fold-caption {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.35rem 0.6rem;
+    background: color-mix(in srgb, var(--color-linen-50) 82%, transparent);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-xl);
+    font-style: italic;
+    line-height: 1.25;
+    color: var(--color-charcoal-900);
+    max-width: 18ch;
+  }
+
+  .fg-pass { position: absolute; inset: 0; }
+  .spool {
+    position: absolute;
+    left: -3vw;
+    bottom: -5svh;
+    width: clamp(170px, 22vw, 340px);
+    filter: blur(2.5px);
+  }
+  .curl {
+    position: absolute;
+    left: 10vw;
+    bottom: 1svh;
+    width: 105vw;
+    height: 24svh;
+    filter: blur(1.2px);
+    overflow: visible;
+  }
+  @media (min-width: 768px) and (max-height: 720px) {
+    .spool { width: clamp(140px, 15vw, 220px); bottom: -9svh; }
+  }
+  @media (max-width: 767px) {
+    .spool { width: 40vw; left: -12vw; bottom: -6svh; }
+    .curl { left: 18vw; width: 120vw; height: 16svh; }
+  }
+
+  .pull-outer { position: absolute; inset: 0; overflow: hidden; }
+  .pull-inner { position: absolute; inset: 0; }
+
+  /* Without motion, the studio shows the end state: the loom steps back and the shirt hangs in front. */
+  :global(html:not(.motion-ok)) .hero-studio { min-height: calc(100svh + var(--spacing-edge) + 2rem); }
+  :global(html:not(.motion-ok)) .loom-inner { opacity: 0.55; transform: scale(0.94); transform-origin: 50% 100%; }
+  @media (min-width: 768px) {
+    :global(html:not(.motion-ok)) .loom-inner { opacity: 0.9; }
+  }
+</style>
