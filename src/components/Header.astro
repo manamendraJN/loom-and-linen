@@ -74,6 +74,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     text-decoration: none;
   }
   .hdr-logo { padding: 0 0.85rem 0 0.7rem; }
+  /* Phones: a live backdrop blur under three pills is re-run on every scroll
+     frame; a near-solid fill looks the same and costs nothing. */
+  @media (pointer: coarse), (max-width: 767px) {
+    .hdr-pill { backdrop-filter: none; -webkit-backdrop-filter: none; background: color-mix(in srgb, var(--color-linen-50) 96%, transparent); }
+  }
   .hdr-shop { display: none; }
   @media (min-width: 640px) { .hdr-shop { display: inline-flex; } }
   .hdr-on { box-shadow: inset 0 -2px 0 var(--color-madder-500); }

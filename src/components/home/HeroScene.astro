@@ -372,6 +372,18 @@ const lines = turn.headline.split(/(?<=\.)\s+/).map((l) => l.split(' '));
   .pull-outer { position: absolute; inset: 0; overflow: hidden; }
   .pull-inner { position: absolute; inset: 0; }
 
+  /* Performance: everything the scroll moves gets its own GPU layer while the
+     scene is live, so scrolling only re-composites (no repaint of the drawings).
+     The blurred far/near objects keep their blur cached in their own layer. */
+  :global(.motion-ok) .cover-rail,
+  :global(.motion-ok) .shelves,
+  :global(.motion-ok) .fold-cloth,
+  :global(.motion-ok) .rail-inner,
+  :global(.motion-ok) .fg-pass,
+  :global(.motion-ok) .curl,
+  :global(.motion-ok) .pull-outer,
+  :global(.motion-ok) .pull-inner { will-change: transform; }
+
   /* Without motion, the studio shows the end state: the loom steps back and the shirt hangs in front. */
   :global(html:not(.motion-ok)) .hero-studio { min-height: calc(100svh + var(--spacing-edge) + 2rem); }
   :global(html:not(.motion-ok)) .loom-inner { opacity: 0.55; transform: scale(0.94); transform-origin: 50% 100%; }

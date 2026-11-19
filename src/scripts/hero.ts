@@ -14,6 +14,13 @@ const T0 = 3.1;
 const STEP = 0.15;
 const PASS = 0.11;
 const rowTop = (i: number) => 594 - i * 6;
+// The moving loom parts are HTML layers sized in loom units; GSAP moves them by
+// percentages of their own size, so 1 loom unit = 100 / size %.
+const SHUTTLE_W = 72; // shuttle layer: 72 × 16 units, centred on its origin
+const SHUTTLE_H = 16;
+const BEATER_H = 561; // beater layer: 561 units tall, origin at y = 0
+const shuttleAt = (x: number, y: number) => ({ xPercent: (x / SHUTTLE_W) * 100, yPercent: (y / SHUTTLE_H) * 100 });
+const beaterAt = (y: number) => ({ yPercent: (y / BEATER_H) * 100 });
 
 export function initHero(page: Page) {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
@@ -34,10 +41,10 @@ export function initHero(page: Page) {
     const loom = q('[data-loom]');
     const shelves = q('[data-shelves]');
     const warps = qa('[data-warp]');
-    const rowsGroup = q<SVGGElement>('[data-rows]');
+    const rowsGroup = q('[data-rows]');
     const rows = qa('[data-row]');
-    const shuttle = q<SVGGElement>('[data-shuttle]');
-    const beater = q<SVGGElement>('[data-beater]');
+    const shuttle = q('[data-shuttle]');
+    const beater = q('[data-beater]');
     const words = qa('[data-word]');
     const turnLine = q('[data-turn-line]');
     const turnLink = q('[data-turn-link]');
@@ -90,7 +97,7 @@ export function initHero(page: Page) {
     // The spool rolls down past the viewer, clearing the copy before the link appears.
     tl.fromTo(fg, { y: 0, scale: 1, transformOrigin: '0% 100%' }, { y: () => window.innerHeight * 0.38, scale: 1.12, duration: 2.6, ease: 'power1.in' }, 0.5);
     tl.fromTo(curl, { x: 0, opacity: 1 }, { x: () => -window.innerWidth * 0.35, opacity: 0, duration: 2.2 }, 0.6);
-    tl.fromTo(spoolWraps, { x: 0 }, { x: -54, duration: 7, ease: 'none' }, 0.5);
+    tl.fromTo(spoolWraps, { xPercent: 0 }, { xPercent: -30, duration: 7, ease: 'none' }, 0.5); // 54 of the core's 180 units
 
     // Warp threads stretch tight, from the middle out.
     tl.fromTo(warps, { scaleY: 0, transformOrigin: '50% 0%' }, { scaleY: 1, duration: 0.5, stagger: { amount: 0.9, from: 'center' }, ease: 'power2.out' }, 1.5);
@@ -102,16 +109,16 @@ export function initHero(page: Page) {
     tl.fromTo(pullOuter, { opacity: 1 }, { opacity: 0, duration: 0.3, immediateRender: false }, 3.0);
 
     /* --- Weaving: the shuttle passes, each row slides in behind it, the reed beats --- */
-    tl.fromTo(beater, { y: rowTop(0) - 26 }, { y: rowTop(0) - 26, duration: 0.01 }, T0 - 0.02);
-    tl.fromTo(shuttle, { x: 96, y: rowTop(0) - 9 }, { x: 96, y: rowTop(0) - 9, duration: 0.01 }, T0 - 0.02);
+    tl.fromTo(beater, beaterAt(rowTop(0) - 26), { ...beaterAt(rowTop(0) - 26), duration: 0.01 }, T0 - 0.02);
+    tl.fromTo(shuttle, shuttleAt(96, rowTop(0) - 9), { ...shuttleAt(96, rowTop(0) - 9), duration: 0.01 }, T0 - 0.02);
     rows.forEach((row, i) => {
       const t = T0 + i * STEP;
       const ltr = i % 2 === 0;
       const y = rowTop(i) - 9;
-      tl.fromTo(shuttle, { x: ltr ? 70 : 530, y }, { x: ltr ? 530 : 70, y, duration: PASS, ease: 'power1.inOut', immediateRender: false }, t);
-      tl.fromTo(row, { x: ltr ? -300 : 300 }, { x: 0, duration: PASS * 0.66, ease: 'power1.inOut' }, t + PASS * 0.17);
-      tl.fromTo(beater, { y: rowTop(i) - 26 }, { y: rowTop(i) - 1, duration: 0.025, ease: 'power2.in', immediateRender: false }, t + PASS + 0.005);
-      tl.fromTo(beater, { y: rowTop(i) - 1 }, { y: rowTop(i + 1) - 26, duration: 0.012, immediateRender: false }, t + PASS + 0.03);
+      tl.fromTo(shuttle, shuttleAt(ltr ? 70 : 530, y), { ...shuttleAt(ltr ? 530 : 70, y), duration: PASS, ease: 'power1.inOut', immediateRender: false }, t);
+      tl.fromTo(row, { xPercent: ltr ? -100 : 100 }, { xPercent: 0, duration: PASS * 0.66, ease: 'power1.inOut' }, t + PASS * 0.17);
+      tl.fromTo(beater, beaterAt(rowTop(i) - 26), { ...beaterAt(rowTop(i) - 1), duration: 0.025, ease: 'power2.in', immediateRender: false }, t + PASS + 0.005);
+      tl.fromTo(beater, beaterAt(rowTop(i) - 1), { ...beaterAt(rowTop(i + 1) - 26), duration: 0.012, immediateRender: false }, t + PASS + 0.03);
     });
 
     /* --- The cloth becomes the shirt --- */
