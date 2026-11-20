@@ -60,8 +60,6 @@ Every `[square-bracket]` value on the site is a placeholder. Search the project 
 - `[reply time]` in the contact form's thank-you message
 - Live domain: `siteUrl` in `site.ts` **and** `site` in `astro.config.mjs` (both are currently `https://example.com`)
 
-**Portfolio note** (`portfolio.studioUrl`)
-- `https://[your-depthwyn-website]`
 
 **Products** (`products` in `site.ts`)
 - Prices: `[Price]`, `[Price from]` (made-to-measure), `[Amount]` and `[Amount 1–3]` (gift cards)

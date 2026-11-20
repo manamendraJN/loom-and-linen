@@ -29,7 +29,7 @@ There are two ways to deploy:
 
 4. **Contact form (optional).** Create a free form at [formspree.io](https://formspree.io), copy its endpoint (`https://formspree.io/f/xxxxxxx`) and paste it into `contact.formspreeEndpoint` in `src/content/site.ts`. Until then, the form shows a friendly "not connected yet" message and points visitors to WhatsApp and email.
 
-5. **Portfolio link.** Replace `https://[your-depthwyn-website]` in `portfolio.studioUrl` (`src/content/site.ts`).
+5. **Portfolio link.** The footer's "Depthwyn" link goes to `https://business-site.depthwyn.workers.dev` (`portfolio.studioUrl` in `src/content/site.ts`). Change it there if your main site moves.
 
 6. **Commit and push** your changes to GitHub (needed for option A):
    ```bash

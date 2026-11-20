@@ -50,7 +50,7 @@ export const contact = {
 
 export const portfolio = {
   studio: 'Depthwyn',
-  studioUrl: 'https://[your-depthwyn-website]',
+  studioUrl: 'https://business-site.depthwyn.workers.dev',
   note: 'Concept project designed by',
   noteEnd: 'Not a real business.',
 };
